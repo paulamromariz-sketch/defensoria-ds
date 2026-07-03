@@ -136,7 +136,7 @@ body { font-family: 'Inter', system-ui, sans-serif; color: var(--text); }
 
 /* ── Slide body ── */
 .slide-body { flex: 1; min-height: 0; position: relative; padding: 1rem 1.4rem; overflow: hidden; }
-.slide-body.grid2 { display: grid; grid-template-columns: 1.1fr .9fr; gap: 1rem; min-height: 0; }
+.slide-body.grid2 { display: grid; grid-template-columns: 1.1fr .9fr; grid-template-rows: 1fr; gap: 1rem; min-height: 0; }
 .cwrap { position: relative; height: 100%; width: 100%; flex: 1 1 auto; min-height: 0; min-width: 0; }
 .panel { background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 1rem; display: flex; flex-direction: column; min-height: 0; }
 
@@ -305,7 +305,7 @@ table.data-table tr:last-child td { border-bottom: none; font-weight: 700; color
     </div>
     <div class="panel" style="flex:1; margin-top:1rem; display:flex; flex-direction:column; min-height:0;">
       <div style="font-size:.78rem; font-weight:700; color:var(--text); margin-bottom:.5rem;">O.S. finalizadas por mês — 2026</div>
-      <div class="cwrap" style="flex:1; min-height:130px; height:130px;"><canvas id="chart_resumo_trend"></canvas></div>
+      <div class="cwrap" style="flex:1; min-height:160px;"><canvas id="chart_resumo_trend"></canvas></div>
     </div>
   </div>
 </section>
@@ -405,7 +405,7 @@ table.data-table tr:last-child td { border-bottom: none; font-weight: 700; color
           </div>
         </div>
         <div style="flex:1; height:100%; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-          <div class="cwrap" style="max-width:190px; flex:1 1 auto; min-height:0; width:100%;"><canvas id="chart_status_cronogramas"></canvas></div>
+          <div class="cwrap" style="max-width:280px; flex:1 1 auto; min-height:0; width:100%; height:100%;"><canvas id="chart_status_cronogramas"></canvas></div>
         </div>
       </div>
       <div class="narrative" style="margin-top:1rem;">
@@ -633,13 +633,14 @@ new Chart(document.getElementById('chart_resumo_trend'), {
   },
   options: {
     responsive:true, maintainAspectRatio:false,
+    layout: { padding: { top: 18 } },
     plugins: {
       legend: { display:false },
       datalabels: { color: TEXT, font:{size:9, weight:700}, anchor:'end', align:'top' }
     },
     scales: {
       x: { grid:{display:false}, ticks:{color:MUTED, font:{size:10}} },
-      y: { display:false, beginAtZero:true, grace:'20%' }
+      y: { display:false, beginAtZero:true, grace:'30%' }
     }
   }
 });
