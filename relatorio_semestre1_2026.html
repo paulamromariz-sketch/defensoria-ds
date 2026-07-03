@@ -780,6 +780,15 @@ const io = new IntersectionObserver((entries) => {
 }, { threshold: .6 });
 sections.forEach(s => io.observe(s));
 
+// ---- Force a resize pass once layout has fully settled ----
+// Some charts (notably horizontal bar charts) can under-size their
+// canvas on first paint inside nested flex/grid containers.
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    Object.values(Chart.instances).forEach(c => { c.resize(); c.update('none'); });
+  });
+});
+
 // ---- Force chart resize before print/PDF export ----
 window.addEventListener('beforeprint', () => {
   Object.values(Chart.instances).forEach(c => { c.resize(); c.update('none'); });
