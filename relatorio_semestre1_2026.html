@@ -783,15 +783,14 @@ sections.forEach(s => io.observe(s));
 // ---- Force a resize pass once layout has fully settled ----
 // Some charts (notably horizontal bar charts) can under-size their
 // canvas on first paint inside nested flex/grid containers.
-requestAnimationFrame(() => {
-  requestAnimationFrame(() => {
-    Object.values(Chart.instances).forEach(c => {
-      const wrap = c.canvas.parentElement;
-      c.resize(wrap.clientWidth, wrap.clientHeight);
-      c.update('none');
-    });
+setTimeout(() => {
+  Object.values(Chart.instances).forEach(c => {
+    const wrap = c.canvas.parentElement;
+    console.log('resize', c.canvas.id, wrap.clientWidth, wrap.clientHeight, '->', c.canvas.getBoundingClientRect());
+    c.resize(wrap.clientWidth, wrap.clientHeight);
+    c.update('none');
   });
-});
+}, 500);
 
 // ---- Force chart resize before print/PDF export ----
 window.addEventListener('beforeprint', () => {
