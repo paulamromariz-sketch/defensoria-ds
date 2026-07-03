@@ -785,7 +785,11 @@ sections.forEach(s => io.observe(s));
 // canvas on first paint inside nested flex/grid containers.
 requestAnimationFrame(() => {
   requestAnimationFrame(() => {
-    Object.values(Chart.instances).forEach(c => { c.resize(); c.update('none'); });
+    Object.values(Chart.instances).forEach(c => {
+      const wrap = c.canvas.parentElement;
+      c.resize(wrap.clientWidth, wrap.clientHeight);
+      c.update('none');
+    });
   });
 });
 
