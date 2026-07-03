@@ -198,6 +198,22 @@ table.data-table tr:last-child td { border-bottom: none; font-weight: 700; color
 .closing-slide { justify-content: center; align-items: center; text-align: center; padding: 2rem; }
 .closing-slide h2 { font-size: 2.2rem; font-weight: 900; margin-bottom: .8rem; }
 .closing-slide p { color: var(--muted); font-size: 1rem; max-width: 620px; margin: 0 auto; line-height: 1.6; }
+
+/* ── Print / PDF export ── */
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+  html, body { background: var(--bg) !important; overflow: visible !important; }
+  #topnav { display: none !important; }
+  @page { size: 1280px 720px; margin: 0; }
+  .slide {
+    width: 1280px !important; height: 720px !important;
+    padding-top: 22px !important;
+    page-break-after: always; break-after: page;
+    page-break-inside: avoid; break-inside: avoid;
+  }
+  .slide:last-of-type { page-break-after: auto; break-after: auto; }
+  .cover-slide, .closing-slide { padding: 0 !important; }
+}
 .closing-logo { width: 64px; height: 64px; border-radius: 50%; margin-bottom: 1.2rem; border: 2px solid rgba(42,157,122,.3); }
 </style>
 </head>
@@ -753,6 +769,11 @@ const io = new IntersectionObserver((entries) => {
   });
 }, { threshold: .6 });
 sections.forEach(s => io.observe(s));
+
+// ---- Force chart resize before print/PDF export ----
+window.addEventListener('beforeprint', () => {
+  Object.values(Chart.instances).forEach(c => { c.resize(); c.update('none'); });
+});
 </script>
 </body>
 </html>
