@@ -782,20 +782,20 @@ sections.forEach(s => io.observe(s));
 
 // ---- Force a resize pass once layout has fully settled ----
 // Some charts (notably horizontal bar charts) can under-size their
-// canvas on first paint inside nested flex/grid containers.
-setTimeout(() => {
+// canvas on first paint inside nested flex/grid containers; update('none')
+// alone doesn't always force a full relayout, so draw() is called too.
+function resettleCharts() {
   Object.values(Chart.instances).forEach(c => {
     const wrap = c.canvas.parentElement;
-    console.log('resize', c.canvas.id, wrap.clientWidth, wrap.clientHeight, '->', c.canvas.getBoundingClientRect());
     c.resize(wrap.clientWidth, wrap.clientHeight);
     c.update('none');
+    c.draw();
   });
-}, 500);
+}
+setTimeout(resettleCharts, 500);
 
 // ---- Force chart resize before print/PDF export ----
-window.addEventListener('beforeprint', () => {
-  Object.values(Chart.instances).forEach(c => { c.resize(); c.update('none'); });
-});
+window.addEventListener('beforeprint', resettleCharts);
 </script>
 </body>
 </html>
