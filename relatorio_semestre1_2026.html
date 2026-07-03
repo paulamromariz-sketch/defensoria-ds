@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COMAP — Balanço do 1º Semestre 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+:root {
+  --bg:     #080f0b;
+  --card:   #0c1910;
+  --card2:  #0f1e13;
+  --border: rgba(42,157,122,.16);
+  --green:  #2a9d7a;
+  --gold:   #c9a84c;
+  --text:   #e2efe5;
+  --muted:  #607a68;
+  --header: #0e2214;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-snap-type: y mandatory; overflow-y: scroll; background: var(--bg); }
+body { font-family: 'Inter', system-ui, sans-serif; color: var(--text); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: rgba(42,157,122,.3); border-radius: 3px; }
+
+/* ── Nav ── */
+#topnav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; gap: .35rem; overflow-x: auto;
+  padding: .4rem 1rem;
+  background: rgba(8,15,11,.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { width:26px; height:26px; border-radius:50%; object-fit:cover; flex-shrink:0; margin-right:.3rem; }
+#topnav a {
+  color: var(--muted); text-decoration: none; font-size: .68rem; font-weight: 600;
+  padding: .2rem .55rem; border-radius: 20px; border: 1px solid transparent;
+  transition: all .15s; flex-shrink: 0; letter-spacing: .01em; white-space: nowrap;
+}
+#topnav a:hover { color: var(--text); border-color: rgba(42,157,122,.3); }
+#topnav a.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+/* ── Slides ── */
+.slide {
+  height: 100dvh; scroll-snap-align: start; scroll-snap-stop: always;
+  padding-top: 42px; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+/* ── Cover ── */
+.cover-slide { padding: 0; position: relative; background: var(--bg); }
+.cover-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 70% at 75% 35%, rgba(42,157,122,.1) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 50% at 15% 85%, rgba(201,168,76,.07) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 90% 90%, rgba(42,157,122,.05) 0%, transparent 50%);
+}
+.cover-bg::after {
+  content: '';
+  position: absolute; right: 0; top: 0; bottom: 0; width: 35%;
+  background: linear-gradient(135deg,
+    transparent 0%, rgba(42,157,122,.03) 40%, rgba(201,168,76,.04) 70%, transparent 100%);
+  border-left: 1px solid rgba(42,157,122,.08);
+}
+.cover-content {
+  position: relative; z-index: 1;
+  height: 100%; padding: 2.2rem 3rem 2rem;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.cover-header { display: flex; align-items: center; gap: 1rem; }
+.cover-logo { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(42,157,122,.3); }
+.cover-header-text { display: flex; flex-direction: column; gap: .12rem; }
+.cover-eyebrow { font-size: .7rem; font-weight: 700; color: var(--green); letter-spacing: .1em; text-transform: uppercase; }
+.cover-org { font-size: .8rem; color: var(--muted); }
+.cover-tag {
+  display: inline-block; font-size: .68rem; font-weight: 700;
+  color: var(--gold); border: 1px solid rgba(201,168,76,.35);
+  background: rgba(201,168,76,.08); padding: .2rem .7rem; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: .08em; margin-bottom: .9rem;
+}
+.cover-title {
+  font-size: clamp(2.6rem, 5vw, 4.4rem); font-weight: 900; line-height: 1.05;
+  color: var(--text); letter-spacing: -.03em;
+}
+.cover-title em { color: var(--green); font-style: normal; }
+.cover-sub { font-size: 1.05rem; color: var(--muted); margin-top: .8rem; max-width: 640px; }
+.cover-mes { display: flex; align-items: baseline; gap: .6rem; margin-top: 1.1rem; }
+.cover-mes-name { font-size: 1.3rem; font-weight: 700; color: var(--text); }
+.cover-mes-ano  { font-size: 1.3rem; font-weight: 900; color: var(--gold); }
+.cover-kpis { display: flex; gap: 1rem; flex-wrap: wrap; }
+.cover-bar {
+  height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--green) 0%, var(--gold) 45%, transparent 100%);
+}
+
+/* ── KPI badges ── */
+.kpi { display: flex; flex-direction: column; align-items: center; padding: .55rem 1rem; border-radius: 12px; }
+.kpi-green { background: rgba(42,157,122,.1);  border: 1px solid rgba(42,157,122,.28); }
+.kpi-gold  { background: rgba(201,168,76,.09); border: 1px solid rgba(201,168,76,.28); }
+.kpi-muted { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); }
+.kv { font-size: 1.55rem; font-weight: 900; line-height: 1; }
+.kpi-green .kv { color: var(--green); }
+.kpi-gold  .kv { color: var(--gold); }
+.kpi-muted .kv { color: var(--text); }
+.kl { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: .22rem; white-space: nowrap; }
+.kd { font-size: .62rem; font-weight: 700; margin-top: .15rem; }
+.kd.up { color: var(--green); }
+.kd.down { color: #c96a4c; }
+
+/* ── Slide header ── */
+.slide-header {
+  flex-shrink: 0; display: flex; align-items: center; gap: .9rem;
+  padding: .5rem 1.2rem;
+  background: var(--header);
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(90deg, var(--gold) 0%, var(--green) 40%, transparent 100%) 1;
+  position: relative;
+}
+.slide-num {
+  font-size: 1.4rem; font-weight: 900; color: var(--gold);
+  background: rgba(201,168,76,.1); border: 1px solid rgba(201,168,76,.3);
+  border-radius: 9px; padding: .12rem .6rem; flex-shrink: 0; line-height: 1.4;
+}
+.slide-title-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.slide-eyebrow { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+.slide-title { font-size: .95rem; font-weight: 700; color: var(--text); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.slide-kpis { display: flex; gap: .5rem; flex-shrink: 0; }
+.slide-kpis .kpi { padding: .35rem .7rem; border-radius: 9px; }
+.slide-kpis .kv { font-size: 1rem; }
+.slide-kpis .kl { font-size: .58rem; }
+
+/* ── Slide body ── */
+.slide-body { flex: 1; min-height: 0; position: relative; padding: 1rem 1.4rem; overflow: hidden; }
+.slide-body.grid2 { display: grid; grid-template-columns: 1.1fr .9fr; gap: 1rem; min-height: 0; }
+.cwrap { position: relative; height: 100%; width: 100%; flex: 1 1 auto; min-height: 0; min-width: 0; }
+.panel { background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 1rem; display: flex; flex-direction: column; min-height: 0; }
+
+/* KPI grid (summary slide) */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .9rem; margin-bottom: 1rem; }
+.kpi-card { background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem; display: flex; flex-direction: column; gap: .3rem; }
+.kpi-card .kv { font-size: 2.1rem; }
+.kpi-card .kl { font-size: .68rem; }
+.kpi-card .kd { font-size: .72rem; }
+.narrative { background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.3rem; font-size: .88rem; line-height: 1.55; color: var(--text); }
+.narrative b { color: var(--gold); }
+.narrative .hl { color: var(--green); font-weight: 700; }
+
+/* Table */
+table.data-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+table.data-table th { text-align: left; color: var(--muted); text-transform: uppercase; font-size: .62rem; letter-spacing: .05em; padding: .4rem .6rem; border-bottom: 1px solid var(--border); }
+table.data-table td { padding: .4rem .6rem; border-bottom: 1px solid rgba(255,255,255,.04); }
+table.data-table tr:last-child td { border-bottom: none; font-weight: 700; color: var(--gold); }
+
+/* ── Cronograma gallery ── */
+.crono-grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: .8rem; height: 100%; }
+.crono-card { background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: .7rem; display: flex; flex-direction: column; gap: .45rem; min-height: 0; }
+.crono-imgs { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; border-radius: 9px; overflow: hidden; flex: 1; min-height: 0; }
+.crono-imgs figure { position: relative; margin: 0; overflow: hidden; height: 100%; }
+.crono-imgs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.crono-imgs figcaption {
+  position: absolute; top: 4px; left: 4px; font-size: .56rem; font-weight: 800;
+  letter-spacing: .06em; text-transform: uppercase; padding: .1rem .4rem; border-radius: 5px;
+  background: rgba(8,15,11,.75); backdrop-filter: blur(2px);
+}
+.crono-imgs figure.before figcaption { color: #d99a6c; border: 1px solid rgba(217,154,108,.5); }
+.crono-imgs figure.after figcaption { color: var(--green); border: 1px solid rgba(42,157,122,.5); }
+.crono-imgs figure.after.andamento figcaption { color: var(--gold); border: 1px solid rgba(201,168,76,.5); }
+.crono-imgs figure.single { grid-column: 1 / -1; }
+.crono-meta { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-shrink: 0; }
+.crono-title { font-size: .82rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+.crono-region { font-size: .6rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-top: .1rem; }
+.status-pill { font-size: .58rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; padding: .18rem .5rem; border-radius: 20px; flex-shrink: 0; white-space: nowrap; }
+.status-pill.concluido { background: rgba(42,157,122,.14); color: var(--green); border: 1px solid rgba(42,157,122,.4); }
+.status-pill.andamento { background: rgba(201,168,76,.14); color: var(--gold); border: 1px solid rgba(201,168,76,.4); }
+.crono-desc { font-size: .68rem; color: var(--muted); line-height: 1.4; flex-shrink: 0; }
+
+/* Overview region split */
+.region-split { display: flex; gap: 1rem; margin-top: .6rem; }
+.region-bar-item { flex: 1; }
+.region-bar-label { display: flex; justify-content: space-between; font-size: .68rem; color: var(--muted); margin-bottom: .25rem; }
+.region-bar-track { height: 10px; border-radius: 6px; background: rgba(255,255,255,.05); overflow: hidden; }
+.region-bar-fill { height: 100%; border-radius: 6px; }
+
+.proximos-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.6rem; flex: 1; min-height: 0; overflow: hidden; }
+.proximos-col-title { font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--gold); margin-bottom: .35rem; }
+.proximos-list { list-style: none; }
+.proximos-list li { font-size: .72rem; color: var(--text); padding: .28rem 0; border-bottom: 1px solid rgba(255,255,255,.05); display: flex; gap: .4rem; }
+.proximos-list li b { color: var(--muted); font-weight: 700; flex-shrink: 0; }
+.progress-track { height: 14px; border-radius: 8px; background: rgba(255,255,255,.05); overflow: hidden; margin-top: .5rem; }
+.progress-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--green), var(--gold)); }
+
+/* Closing slide */
+.closing-slide { justify-content: center; align-items: center; text-align: center; padding: 2rem; }
+.closing-slide h2 { font-size: 2.2rem; font-weight: 900; margin-bottom: .8rem; }
+.closing-slide p { color: var(--muted); font-size: 1rem; max-width: 620px; margin: 0 auto; line-height: 1.6; }
+.closing-logo { width: 64px; height: 64px; border-radius: 50%; margin-bottom: 1.2rem; border: 2px solid rgba(42,157,122,.3); }
+</style>
+</head>
+<body>
+
+<nav id="topnav">
+  <img class="nav-logo" src="assets/logo-dperj.webp" alt="DPERJ">
+  <a href="#capa">Capa</a>
+  <a href="#resumo">Resumo</a>
+  <a href="#evolucao">Evolução O.S.</a>
+  <a href="#natureza">Natureza</a>
+  <a href="#cronogramas">Cronogramas</a>
+  <a href="#concluidos">Concluídos</a>
+  <a href="#andamento">Em Andamento</a>
+  <a href="#proximos-passos">Próximos Passos</a>
+  <a href="#fechamento">Fechamento</a>
+</nav>
+
+<!-- ============ 1. CAPA ============ -->
+<section class="slide cover-slide" id="capa">
+  <div class="cover-bg"></div>
+  <div class="cover-content">
+    <div class="cover-header">
+      <img class="cover-logo" src="assets/logo-dperj.webp" alt="DPERJ">
+      <div class="cover-header-text">
+        <span class="cover-eyebrow">Defensoria Pública do Estado do Rio de Janeiro</span>
+        <span class="cover-org">COMAP · Coordenadoria de Manutenção Predial — DIE</span>
+      </div>
+    </div>
+    <div class="cover-hero">
+      <span class="cover-tag">Relatório Executivo</span>
+      <div class="cover-title">Balanço do<br><em>1º Semestre</em> 2026</div>
+      <p class="cover-sub">Consolidado das atividades de manutenção predial, corretiva, preventiva e de reforma executadas pela COMAP em toda a Defensoria — Capital, Baixada e Interior.</p>
+      <div class="cover-mes"><span class="cover-mes-name">Janeiro a Junho</span><span class="cover-mes-ano">2026</span></div>
+    </div>
+    <div>
+      <div class="cover-bar" style="margin-bottom:1rem;"></div>
+      <div class="cover-kpis">
+        <div class="kpi kpi-green"><span class="kv">9.768</span><span class="kl">O.S. finalizadas</span></div>
+        <div class="kpi kpi-gold"><span class="kv">+43,9%</span><span class="kl">vs 1º sem. 2025</span></div>
+        <div class="kpi kpi-muted"><span class="kv">31</span><span class="kl">cronogramas de reforma</span></div>
+        <div class="kpi kpi-muted"><span class="kv">26</span><span class="kl">concluídos no período</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. RESUMO EXECUTIVO ============ -->
+<section class="slide" id="resumo">
+  <div class="slide-header">
+    <span class="slide-num">01</span>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Visão Geral · Jan–Jun 2026</span>
+      <span class="slide-title">Resumo Executivo</span>
+    </div>
+  </div>
+  <div class="slide-body" style="display:flex; flex-direction:column; min-height:0;">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <span class="kv" style="color:var(--green)">9.768</span>
+        <span class="kl">O.S. finalizadas no semestre</span>
+        <span class="kd up">▲ 43,9% vs 6.791 em 2025</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kv" style="color:var(--gold)">6.033</span>
+        <span class="kl">manutenções preventivas realizadas</span>
+        <span class="kd up">▲ 52,1% vs 3.966 em 2025</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kv">2.505</span>
+        <span class="kl">manutenções corretivas realizadas</span>
+        <span class="kd up">▲ 7,8% vs 2.323 em 2025</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kv">31</span>
+        <span class="kl">cronogramas de reforma/layout</span>
+        <span class="kd" style="color:var(--text)">26 concluídos · 5 em andamento</span>
+      </div>
+    </div>
+    <div class="narrative">
+      No primeiro semestre de 2026, a COMAP <b>ampliou de forma expressiva sua capacidade de resposta</b>: foram finalizadas
+      <span class="hl">9.768 ordens de serviço</span> em toda a Defensoria (Capital, Baixada e Interior), um crescimento de
+      <span class="hl">43,9%</span> em relação ao mesmo período de 2025 (6.791 O.S.). Mais relevante do que o volume é a
+      <b>mudança de perfil do atendimento</b>: as manutenções <b>preventivas</b> cresceram <span class="hl">52,1%</span>,
+      bem acima do crescimento das corretivas (<span class="hl">7,8%</span>) — evidência de uma atuação cada vez mais
+      planejada e menos reativa. Paralelamente, a equipe conduziu <b>31 cronogramas de reforma e adequação de layout</b>
+      em unidades da Capital e do Interior, com <span class="hl">26 já concluídos</span> e 5 em execução, registrados
+      mês a mês nas edições da Revista Manutenção (Jan–Mai/2026), com atualização de junho consolidada neste relatório.
+    </div>
+    <div class="panel" style="flex:1; margin-top:1rem; display:flex; flex-direction:column; min-height:0;">
+      <div style="font-size:.78rem; font-weight:700; color:var(--text); margin-bottom:.5rem;">O.S. finalizadas por mês — 2026</div>
+      <div class="cwrap" style="flex:1; min-height:0;"><canvas id="chart_resumo_trend"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. EVOLUÇÃO MENSAL O.S. ============ -->
+<section class="slide" id="evolucao">
+  <div class="slide-header">
+    <span class="slide-num">02</span>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Comparativo Mensal · 2025 x 2026</span>
+      <span class="slide-title">Evolução das Ordens de Serviço</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-green"><span class="kv">9.768</span><span class="kl">fechadas 2026</span></div>
+      <div class="kpi kpi-muted"><span class="kv">6.791</span><span class="kl">fechadas 2025</span></div>
+    </div>
+  </div>
+  <div class="slide-body grid2">
+    <div class="panel">
+      <div style="font-size:.78rem; font-weight:700; color:var(--text); margin-bottom:.5rem;">O.S. finalizadas por mês</div>
+      <div class="cwrap"><canvas id="chart_fechadas"></canvas></div>
+    </div>
+    <div class="panel">
+      <div style="font-size:.78rem; font-weight:700; color:var(--text); margin-bottom:.5rem;">O.S. abertas por mês</div>
+      <div class="cwrap" style="flex:1;"><canvas id="chart_abertas"></canvas></div>
+      <table class="data-table" style="margin-top:.6rem;">
+        <thead><tr><th>Total semestre</th><th>2025</th><th>2026</th><th>Var.</th></tr></thead>
+        <tbody>
+          <tr><td>Abertas</td><td>7.106</td><td>9.903</td><td style="color:var(--green)">+39,4%</td></tr>
+          <tr><td>Finalizadas</td><td>6.791</td><td>9.768</td><td style="color:var(--green)">+43,9%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. NATUREZA DOS ATENDIMENTOS ============ -->
+<section class="slide" id="natureza">
+  <div class="slide-header">
+    <span class="slide-num">03</span>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Corretiva · Preventiva · Serviço de Apoio</span>
+      <span class="slide-title">Natureza dos Atendimentos</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-gold"><span class="kv">+52,1%</span><span class="kl">preventiva</span></div>
+    </div>
+  </div>
+  <div class="slide-body grid2">
+    <div class="panel">
+      <div style="font-size:.78rem; font-weight:700; color:var(--text); margin-bottom:.5rem;">Totais do semestre por natureza</div>
+      <div class="cwrap"><canvas id="chart_natureza"></canvas></div>
+    </div>
+    <div class="panel">
+      <div style="font-size:.78rem; font-weight:700; color:var(--text); margin-bottom:.5rem;">Composição 2025 vs 2026</div>
+      <div style="display:flex; gap:.6rem; flex:1; min-height:0;">
+        <div class="cwrap"><canvas id="chart_donut_2025"></canvas></div>
+        <div class="cwrap"><canvas id="chart_donut_2026"></canvas></div>
+      </div>
+      <div class="narrative" style="margin-top:.6rem; font-size:.72rem; padding:.7rem .9rem;">
+        A <b>preventiva</b> já era majoritária em 2025 (53% do total) e avança de forma moderada para 62% em 2026,
+        enquanto a <b>corretiva</b> recua de 31% para 26% e o serviço de apoio, de 17% para 12% — uma consolidação
+        gradual, não uma virada, refletindo o amadurecimento do PMOC e das rotinas de calha/telhado, bebedouro e
+        roçadeira implantadas pela COMAP.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. CRONOGRAMAS — VISÃO GERAL ============ -->
+<section class="slide" id="cronogramas">
+  <div class="slide-header">
+    <span class="slide-num">04</span>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Reformas · Adequações de Layout · Jan–Jun 2026</span>
+      <span class="slide-title">Cronogramas de Manutenção</span>
+    </div>
+  </div>
+  <div class="slide-body" style="display:flex; flex-direction:column; gap:1rem;">
+    <div class="kpi-grid" style="grid-template-columns: repeat(4,1fr);">
+      <div class="kpi-card"><span class="kv">31</span><span class="kl">atuações registradas no semestre</span></div>
+      <div class="kpi-card"><span class="kv" style="color:var(--green)">26</span><span class="kl">concluídas com antes e depois</span></div>
+      <div class="kpi-card"><span class="kv" style="color:var(--gold)">5</span><span class="kl">em andamento até junho/2026</span></div>
+      <div class="kpi-card"><span class="kv">17 / 14</span><span class="kl">Capital / Baixada e Interior</span></div>
+    </div>
+    <div class="panel" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+      <div style="font-size:.78rem; font-weight:700; color:var(--text); margin-bottom:.7rem;">Distribuição por região e status</div>
+      <div style="display:flex; gap:1.4rem; flex:1; min-height:0; align-items:center;">
+        <div class="region-split" style="flex:1.3;">
+          <div class="region-bar-item">
+            <div class="region-bar-label"><span>Capital</span><span>17</span></div>
+            <div class="region-bar-track"><div class="region-bar-fill" style="width:55%; background:var(--green);"></div></div>
+          </div>
+          <div class="region-bar-item">
+            <div class="region-bar-label"><span>Baixada e Interior</span><span>14</span></div>
+            <div class="region-bar-track"><div class="region-bar-fill" style="width:45%; background:var(--gold);"></div></div>
+          </div>
+        </div>
+        <div style="flex:1; height:100%; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+          <div class="cwrap" style="max-width:190px; flex:1 1 auto; min-height:0; width:100%;"><canvas id="chart_status_cronogramas"></canvas></div>
+        </div>
+      </div>
+      <div class="narrative" style="margin-top:1rem;">
+        Cada intervenção listada nas próximas páginas foi documentada mês a mês na <b>Revista Manutenção COMAP</b>
+        (edições de Janeiro a Maio/2026), com registro fotográfico de <b>antes e depois</b> das obras, e complementada
+        com as conclusões e novas atuações de junho/2026. Projetos que atravessaram mais de um mês — como Vila Isabel,
+        Francisco Portela, Petrópolis, Menezes Côrtes e Travessa Judith/São Gonçalo — são apresentados como um único
+        caso, do estado inicial até a conclusão (ou situação mais recente, para os que seguem em andamento).
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONCLUÍDOS (6 slides) ============ -->
+<div id="concluidos-slides"></div>
+
+<!-- ============ EM ANDAMENTO (2 slides) ============ -->
+<div id="andamento-slides"></div>
+
+<!-- ============ PRÓXIMOS PASSOS ============ -->
+<section class="slide" id="proximos-passos">
+  <div class="slide-header">
+    <span class="slide-num">14</span>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Planejamento · 2º Semestre 2026</span>
+      <span class="slide-title">Próximos Passos</span>
+    </div>
+  </div>
+  <div class="slide-body" style="display:flex; flex-direction:column; gap:1rem; min-height:0;">
+    <div class="kpi-grid" style="grid-template-columns: repeat(3,1fr);">
+      <div class="kpi-card">
+        <span class="kv" style="color:var(--green)">18.000+</span>
+        <span class="kl">meta de O.S. finalizadas em 2026</span>
+        <span class="kd" style="color:var(--text)">9.768 já concluídas no 1º semestre</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kv" style="color:var(--gold)">5</span>
+        <span class="kl">cronogramas em andamento</span>
+        <span class="kd" style="color:var(--text)">conclusão prevista até julho/2026</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kv">18</span>
+        <span class="kl">novos cronogramas mapeados</span>
+        <span class="kd" style="color:var(--text)">Capital e Baixada/Interior · 2º semestre</span>
+      </div>
+    </div>
+    <div class="panel" style="min-height:0;">
+      <div style="display:flex; justify-content:space-between; align-items:baseline;">
+        <span style="font-size:.78rem; font-weight:700; color:var(--text);">Meta anual de O.S. finalizadas</span>
+        <span style="font-size:.7rem; color:var(--muted);">9.768 / 18.000 (54%)</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:54%;"></div></div>
+    </div>
+    <div class="panel" style="flex:1; display:flex; flex-direction:column; min-height:0; gap:.6rem;">
+      <div style="font-size:.78rem; font-weight:700; color:var(--text);">Novos cronogramas planejados para o 2º semestre</div>
+      <div class="proximos-cols">
+        <div>
+          <div class="proximos-col-title">Capital</div>
+          <ul class="proximos-list">
+            <li><b>Nilo Peçanha</b> Manutenção geral do corredor e recepção</li>
+            <li><b>Rio Branco (12º)</b> Reparo das esquadrias</li>
+            <li><b>Jacarepaguá</b> Reparo de infiltração da recepção</li>
+            <li><b>Jardim Sulacap</b> Reparo de infiltração</li>
+            <li><b>Méier</b> Reparo de infiltração</li>
+            <li><b>SEDE</b> Instalação de piso tátil</li>
+            <li><b>Menezes Côrtes (15º)</b> Reparo do revestimento do banheiro</li>
+            <li><b>Menezes Côrtes (15º)</b> Climatização dos corredores</li>
+            <li><b>Menezes Côrtes (13º)</b> Adequação de layout do Nudecon</li>
+            <li><b>Fesudeperj</b> Reparo geral da varanda</li>
+          </ul>
+        </div>
+        <div>
+          <div class="proximos-col-title">Baixada e Interior</div>
+          <ul class="proximos-list">
+            <li><b>Belford Roxo</b> Reparo de infiltração e adequação de layout</li>
+            <li><b>Angra dos Reis</b> Reforma geral</li>
+            <li><b>Saquarema</b> Reparo de infiltração</li>
+            <li><b>Rio Claro</b> Manutenção geral</li>
+            <li><b>Barra Mansa</b> Reparo de infiltração</li>
+            <li><b>Francisco Portela</b> Reparo de infiltração</li>
+            <li><b>Carapebus</b> Reparo de infiltração</li>
+            <li><b>Duque de Caxias</b> Instalação de piso tátil</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="narrative">
+      Destaque estratégico do semestre: a expansão do <b>PCM Digital</b>, sistema próprio de Plano de Conservação e
+      Manutenção que gera um <b>ranking de conservação predial</b> (índice BOM/REGULAR/RUIM por imóvel). Já em operação
+      na Capital, o sistema passa a ser levado também para o Interior, permitindo priorizar os cronogramas de reforma
+      pelos imóveis em pior estado de conservação, em vez de ordem de chegada da demanda.
+    </div>
+  </div>
+</section>
+
+<!-- ============ FECHAMENTO ============ -->
+<section class="slide closing-slide" id="fechamento">
+  <img class="closing-logo" src="assets/logo-dperj.webp" alt="DPERJ">
+  <h2>COMAP — Coordenadoria de Manutenção Predial</h2>
+  <p>
+    Este relatório consolida o trabalho da equipe de engenharia e manutenção da Defensoria Pública do Estado do
+    Rio de Janeiro ao longo do 1º semestre de 2026.
+    Os dados detalhados de cada mês seguem disponíveis nas edições 01 a 05 da Revista Manutenção COMAP.
+  </p>
+  <div class="cover-bar" style="width:220px; margin:1.6rem auto 0;"></div>
+</section>
+
+<script>
+Chart.register(ChartDataLabels);
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.color = '#607a68';
+
+const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun'];
+const OS2026 = { aberta:[1982,881,2055,1805,1583,1597], fechada:[1375,1610,1638,1630,1725,1790] };
+const OS2025 = { aberta:[1285,1121,1116,1257,1006,1321], fechada:[1062,830,1357,1021,1533,988] };
+const NAT2026 = { corretiva:[474,420,386,370,456,399], preventiva:[728,1094,1021,1038,1026,1126], apoio:[173,96,232,219,234,265] };
+const NAT2025 = { corretiva:[353,408,421,434,428,279], preventiva:[924,328,773,482,933,526], apoio:[162,153,158,151,341,282] };
+const sum = a => a.reduce((x,y)=>x+y,0);
+
+const GREEN = '#2a9d7a', GOLD = '#c9a84c', MUTED = '#3a5245', TEXT = '#e2efe5';
+
+new Chart(document.getElementById('chart_fechadas'), {
+  type: 'bar',
+  data: {
+    labels: MESES,
+    datasets: [
+      { label:'2025', data:OS2025.fechada, backgroundColor: MUTED, borderRadius:4, maxBarThickness:34 },
+      { label:'2026', data:OS2026.fechada, backgroundColor: GREEN, borderRadius:4, maxBarThickness:34 },
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins: {
+      legend: { position:'bottom', labels:{ boxWidth:10, font:{size:10}, color:TEXT } },
+      datalabels: { color: TEXT, font:{size:9, weight:700}, anchor:'end', align:'top' }
+    },
+    scales: {
+      x: { grid:{display:false}, ticks:{color:MUTED, font:{size:10}} },
+      y: { display:false, beginAtZero:true, grace:'15%' }
+    }
+  }
+});
+
+new Chart(document.getElementById('chart_abertas'), {
+  type: 'line',
+  data: {
+    labels: MESES,
+    datasets: [
+      { label:'2025', data:OS2025.aberta, borderColor: MUTED, backgroundColor:'transparent', borderDash:[4,3], tension:.3, pointRadius:3 },
+      { label:'2026', data:OS2026.aberta, borderColor: GOLD, backgroundColor:'rgba(201,168,76,.08)', fill:true, tension:.3, pointRadius:3, pointBackgroundColor:GOLD },
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins: {
+      legend: { position:'bottom', labels:{ boxWidth:10, font:{size:10}, color:TEXT } },
+      datalabels: { display:false }
+    },
+    scales: {
+      x: { grid:{display:false}, ticks:{color:MUTED, font:{size:9}} },
+      y: { display:false, beginAtZero:true, grace:'15%' }
+    }
+  }
+});
+
+new Chart(document.getElementById('chart_natureza'), {
+  type: 'bar',
+  data: {
+    labels: ['Corretiva','Preventiva','Serviço de Apoio'],
+    datasets: [
+      { label:'2025', data:[sum(NAT2025.corretiva), sum(NAT2025.preventiva), sum(NAT2025.apoio)], backgroundColor: MUTED, borderRadius:4, maxBarThickness:44 },
+      { label:'2026', data:[sum(NAT2026.corretiva), sum(NAT2026.preventiva), sum(NAT2026.apoio)], backgroundColor: GOLD, borderRadius:4, maxBarThickness:44 },
+    ]
+  },
+  options: {
+    indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    plugins: {
+      legend: { position:'bottom', labels:{ boxWidth:10, font:{size:10}, color:TEXT } },
+      datalabels: { color:TEXT, font:{size:10, weight:700}, anchor:'end', align:'end' }
+    },
+    scales: {
+      x: { display:false, beginAtZero:true, grace:'20%' },
+      y: { grid:{display:false}, ticks:{color:TEXT, font:{size:11, weight:600}} }
+    }
+  }
+});
+
+function donut(id, data, title) {
+  new Chart(document.getElementById(id), {
+    type: 'doughnut',
+    data: {
+      labels: ['Corretiva','Preventiva','Apoio'],
+      datasets: [{ data, backgroundColor:['#8a97a8', GREEN, GOLD], borderColor:'#0f1e13', borderWidth:3 }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:'62%',
+      plugins: {
+        legend: { display:false },
+        title: { display:true, text:title, color:TEXT, font:{size:11, weight:700} },
+        datalabels: { color:'#0a1410', font:{size:10, weight:800}, formatter:(v,ctx)=>{
+          const t = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+          return Math.round(v/t*100)+'%';
+        }}
+      }
+    }
+  });
+}
+donut('chart_donut_2025', [sum(NAT2025.corretiva), sum(NAT2025.preventiva), sum(NAT2025.apoio)], '2025');
+donut('chart_donut_2026', [sum(NAT2026.corretiva), sum(NAT2026.preventiva), sum(NAT2026.apoio)], '2026');
+
+new Chart(document.getElementById('chart_resumo_trend'), {
+  type: 'bar',
+  data: {
+    labels: MESES,
+    datasets: [{ data: OS2026.fechada, backgroundColor: GREEN, borderRadius:4, maxBarThickness:38 }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins: {
+      legend: { display:false },
+      datalabels: { color: TEXT, font:{size:9, weight:700}, anchor:'end', align:'top' }
+    },
+    scales: {
+      x: { grid:{display:false}, ticks:{color:MUTED, font:{size:10}} },
+      y: { display:false, beginAtZero:true, grace:'20%' }
+    }
+  }
+});
+
+// ---- Cronograma gallery ----
+const CRONO_DIR = 'assets/semestre1_2026/cronogramas/';
+const CONCLUIDOS = [
+  { slug:'sede-fesudeperj', title:'SEDE — Ampliação do Auditório (Fesudeperj)', region:'Capital', desc:'Remoção de pilares, nova infraestrutura elétrica/hidráulica, forro e pintura para ampliar o espaço de eventos.' },
+  { slug:'sede-grade', title:'SEDE — Grade de Segurança', region:'Capital', desc:'Fechamento provisório com grades metálicas para reforçar a segurança patrimonial durante o Carnaval.' },
+  { slug:'sede-fachada-teto', title:'SEDE — Pintura do Teto da Fachada', region:'Capital', desc:'Repintura em tom branco neve, melhorando a refletância e a luminosidade do ambiente.' },
+  { slug:'silva-jardim', title:'Silva Jardim — Reforma do Banheiro', region:'Região 03', desc:'Substituição completa da tubulação hidráulica (ferro → PVC) e reforma de acabamento.' },
+  { slug:'cantagalo', title:'Cantagalo — Correção da Fachada', region:'Região 05', desc:'Realinhamento do blindex e ajuste do forro de gesso da fachada envidraçada.' },
+  { slug:'vila-isabel', title:'Vila Isabel — Combate à Infiltração', region:'Capital', desc:'Correção de platibanda, calha e telhado, com pintura geral para eliminar infiltração e mofo.' },
+  { slug:'sede-cobertura', title:'SEDE — Cobertura da Guarita', region:'Capital', desc:'Instalação de cobertura metálica com telhado de PVC no posto de vigilância da garagem.' },
+  { slug:'guapimirim', title:'Guapimirim — Escada de Acesso ao Telhado', region:'Região 02', desc:'Fabricação e instalação de escada fixa tipo marinheiro para manutenção segura da cobertura.' },
+  { slug:'francisco-portela', title:'Francisco Portela — Impermeabilização do Telhado', region:'Região 02', desc:'Reparo de calha e rufo, impermeabilização do telhado e pintura da recepção e gabinete.' },
+  { slug:'petropolis', title:'Petrópolis — Realocação de Condensadoras', region:'Região 06', desc:'Remoção e reinstalação das unidades de ar-condicionado para viabilizar obra de telhado do proprietário.' },
+  { slug:'menezes-esquadrias', title:'Menezes Côrtes — Novas Esquadrias', region:'Capital', desc:'Instalação de esquadrias de vidro no 15º andar, com patamar de fixação sob medida.' },
+  { slug:'travessa-judith', title:'São Gonçalo (Travessa Judith) — Troca de Telhado', region:'Região 02', desc:'Substituição completa das telhas e tratamento do beiral contra infiltração.' },
+  { slug:'menezes-luminarias', title:'Menezes Côrtes — Sala Sensorial', region:'Capital', desc:'Readequação de luminárias e pontos elétricos para melhorar conforto e ambientação.' },
+  { slug:'volta-redonda', title:'Volta Redonda — Reparo de Calha', region:'Região 04', desc:'Correção de infiltração com ajuste de drenagem, reparo do rufo e pintura interna.' },
+  { slug:'sao-goncalo-caixa', title:'São Gonçalo — Nova Caixa d’Água', region:'Região 02', desc:'Substituição da antiga caixa de amianto por reservatórios em PVC sobre base de alvenaria.' },
+  { slug:'rocha', title:'Rocha — Telas de Proteção', region:'Capital', desc:'Instalação de telas em todos os vãos do imóvel para impedir a entrada de pombos.' },
+  { slug:'duque-caxias-layout', title:'Duque de Caxias — Layout da 4ª Vara de Família', region:'Região 01', desc:'Fechamento de gabinete com divisória e nova infraestrutura elétrica e de rede lógica.' },
+  { slug:'cachoeiras-macacu', title:'Cachoeiras de Macacu — Reforma da Copa', region:'Região 05', desc:'Reorganização de prateleiras, cabeamento e bancadas para melhor funcionalidade do espaço.', imgs:['antes','depois','antes2','depois2'] },
+  { slug:'menezes-junta', title:'Menezes Côrtes — Junta de Dilatação (13º andar)', region:'Capital', desc:'Recuperação estrutural do piso, com conclusão em junho de 2026.' },
+  { slug:'jacarepagua-pavimentacao', title:'Jacarepaguá — Pavimentação de Acesso', region:'Capital', desc:'Recomposição da área externa com aplicação de brita, concluída em junho de 2026.' },
+  { slug:'duque-caxias-grade', title:'Duque de Caxias — Travamento da Fachada', region:'Região 01', desc:'Reforço das ancoragens e alinhamento das chapas do brise metálico, concluído em junho de 2026.' },
+  { slug:'itaguai', title:'Itaguaí — Infraestrutura Hidráulica', region:'Região 09', desc:'Reparo do esgotamento entre reservatórios de águas pluviais e recomposição do pavimento, concluído em junho de 2026.' },
+  { slug:'jacarepagua-platibanda', title:'Jacarepaguá — Platibanda da Cobertura', region:'Capital', desc:'Recomposição da platibanda e impermeabilização das calhas contra infiltração, concluída em junho de 2026.' },
+  { slug:'sede-manutencao-geral', title:'SEDE — Reforma de Sala', region:'Capital', desc:'Substituição do forro, readequação elétrica e pintura em uma das salas da Sede, concluída em junho de 2026.' },
+  { slug:'sede-suporte-ar-condicionado', title:'SEDE — Suporte de Ar-Condicionado', region:'Capital', desc:'Recuperação do suporte metálico das condensadoras na fachada, eliminando risco de queda dos equipamentos.' },
+  { slug:'deposito-sao-cristovao', title:'Depósito São Cristóvão — Instalação de Reservatório', region:'Capital', desc:'Instalação de novo reservatório de água de 5.000 litros, com readequação da tubulação hidráulica e elétrica.' },
+];
+const ANDAMENTO = [
+  { slug:'sede-pintura-fachada', title:'SEDE — Pintura da Fachada', region:'Capital', desc:'Recuperação e repintura completa da fachada do prédio-sede da Defensoria.' },
+  { slug:'marica', title:'Maricá — Manutenção Geral', region:'Baixada e Interior', desc:'Reforma geral do imóvel, com repintura da fachada e adequações, iniciada em junho de 2026.', imgs:['andamento'] },
+  { slug:'deposito-sao-cristovao-piso', title:'Depósito São Cristóvão — Demarcação do Piso', region:'Capital', desc:'Sinalização horizontal das vagas de estacionamento do depósito, em execução.', imgs:['andamento'] },
+  { slug:'marica-concertina', title:'Maricá — Instalação de Concertina', region:'Baixada e Interior', desc:'Reforço perimetral com concertina sobre o muro da unidade, em execução.', imgs:['andamento'], imgPosition:'top' },
+  { slug:'sede-casa-maquina', title:'SEDE — Casa de Máquinas: Impermeabilização da Laje', region:'Capital', desc:'Impermeabilização da laje de cobertura da casa de máquinas, em execução.', imgs:['andamento'] },
+];
+
+new Chart(document.getElementById('chart_status_cronogramas'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Concluído','Em andamento'],
+    datasets: [{ data: [CONCLUIDOS.length, ANDAMENTO.length], backgroundColor: [GREEN, GOLD], borderColor:'#0f1e13', borderWidth:3 }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false, cutout:'62%',
+    plugins: {
+      legend: { position:'bottom', labels:{ boxWidth:10, font:{size:9}, color:TEXT } },
+      datalabels: { color:'#0a1410', font:{size:10, weight:800}, formatter:(v,ctx)=>{
+        const t = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+        return v + ' (' + Math.round(v/t*100) + '%)';
+      }}
+    }
+  }
+});
+
+function cronoCard(item, kind) {
+  const status = kind === 'concluido' ? 'Concluído' : 'Em andamento';
+  const pillClass = kind === 'concluido' ? 'concluido' : 'andamento';
+  const afterKey = kind === 'concluido' ? 'depois' : 'andamento';
+  const afterLabel = kind === 'concluido' ? 'Depois' : 'Andamento';
+  const afterClass = kind === 'concluido' ? 'after' : 'after andamento';
+  const imgs = item.imgs || ['antes', afterKey];
+  let imgsHtml = '';
+  if (imgs.length === 1) {
+    const pos = item.imgPosition || 'center';
+    imgsHtml = `<figure class="${afterClass} single"><figcaption>${afterLabel}</figcaption><img src="${CRONO_DIR}${item.slug}/${imgs[0]}.jpg" alt="" style="object-position:${pos};"></figure>`;
+  } else if (imgs.length === 2) {
+    imgsHtml = `
+      <figure class="before"><figcaption>Antes</figcaption><img src="${CRONO_DIR}${item.slug}/antes.jpg" alt=""></figure>
+      <figure class="${afterClass}"><figcaption>${afterLabel}</figcaption><img src="${CRONO_DIR}${item.slug}/${afterKey}.jpg" alt=""></figure>`;
+  } else {
+    imgsHtml = `
+      <figure class="before"><figcaption>Antes</figcaption><img src="${CRONO_DIR}${item.slug}/antes.jpg" alt=""></figure>
+      <figure class="${afterClass}"><figcaption>${afterLabel}</figcaption><img src="${CRONO_DIR}${item.slug}/depois.jpg" alt=""></figure>`;
+  }
+  return `
+    <div class="crono-card">
+      <div class="crono-imgs">${imgsHtml}</div>
+      <div class="crono-meta">
+        <div>
+          <div class="crono-title">${item.title}</div>
+          <div class="crono-region">${item.region}</div>
+        </div>
+        <span class="status-pill ${pillClass}">${status}</span>
+      </div>
+      <div class="crono-desc">${item.desc}</div>
+    </div>`;
+}
+
+function buildGallerySlides(items, kind, containerSel, startNum, anchorFirst) {
+  const container = document.querySelector(containerSel);
+  const perSlide = 4;
+  const chunks = [];
+  for (let i=0; i<items.length; i+=perSlide) chunks.push(items.slice(i, i+perSlide));
+  const label = kind === 'concluido' ? 'Concluídos' : 'Em Andamento';
+  const eyebrow = kind === 'concluido' ? 'Antes e Depois · Obras Finalizadas' : 'Antes e Andamento · Obras em Execução';
+  chunks.forEach((chunk, idx) => {
+    const num = String(startNum + idx).padStart(2,'0');
+    const anchor = idx === 0 ? (anchorFirst || '') : '';
+    const section = document.createElement('section');
+    section.className = 'slide';
+    if (anchor) section.id = anchor;
+    section.innerHTML = `
+      <div class="slide-header">
+        <span class="slide-num">${num}</span>
+        <div class="slide-title-area">
+          <span class="slide-eyebrow">${eyebrow}</span>
+          <span class="slide-title">Cronogramas ${label} (${idx*perSlide+1}–${Math.min(idx*perSlide+perSlide, items.length)} de ${items.length})</span>
+        </div>
+      </div>
+      <div class="slide-body">
+        <div class="crono-grid">${chunk.map(it => cronoCard(it, kind)).join('')}</div>
+      </div>`;
+    container.parentNode.insertBefore(section, container);
+  });
+}
+
+buildGallerySlides(CONCLUIDOS, 'concluido', '#concluidos-slides', 5, 'concluidos');
+buildGallerySlides(ANDAMENTO, 'andamento', '#andamento-slides', 5 + Math.ceil(CONCLUIDOS.length/4), 'andamento');
+document.getElementById('concluidos-slides').remove();
+document.getElementById('andamento-slides').remove();
+
+// ---- Nav active state on scroll ----
+const sections = document.querySelectorAll('.slide[id]');
+const navLinks = document.querySelectorAll('#topnav a');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#'+e.target.id));
+    }
+  });
+}, { threshold: .6 });
+sections.forEach(s => io.observe(s));
+</script>
+</body>
+</html>
