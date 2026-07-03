@@ -187,9 +187,9 @@ table.data-table tr:last-child td { border-bottom: none; font-weight: 700; color
 .region-bar-fill { height: 100%; border-radius: 6px; }
 
 .proximos-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.6rem; flex: 1; min-height: 0; overflow: hidden; }
-.proximos-col-title { font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--gold); margin-bottom: .35rem; }
+.proximos-col-title { font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--gold); margin-bottom: .2rem; }
 .proximos-list { list-style: none; }
-.proximos-list li { font-size: .72rem; color: var(--text); padding: .28rem 0; border-bottom: 1px solid rgba(255,255,255,.05); display: flex; gap: .4rem; }
+.proximos-list li { font-size: .64rem; line-height: 1.15; color: var(--text); padding: .16rem 0; border-bottom: 1px solid rgba(255,255,255,.05); display: flex; gap: .4rem; }
 .proximos-list li b { color: var(--muted); font-weight: 700; flex-shrink: 0; }
 .progress-track { height: 14px; border-radius: 8px; background: rgba(255,255,255,.05); overflow: hidden; margin-top: .5rem; }
 .progress-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--green), var(--gold)); }
@@ -434,7 +434,7 @@ table.data-table tr:last-child td { border-bottom: none; font-weight: 700; color
       <span class="slide-title">Próximos Passos</span>
     </div>
   </div>
-  <div class="slide-body" style="display:flex; flex-direction:column; gap:1rem; min-height:0;">
+  <div class="slide-body" style="display:flex; flex-direction:column; gap:.6rem; min-height:0;">
     <div class="kpi-grid" style="grid-template-columns: repeat(3,1fr);">
       <div class="kpi-card">
         <span class="kv" style="color:var(--green)">18.000+</span>
@@ -452,14 +452,14 @@ table.data-table tr:last-child td { border-bottom: none; font-weight: 700; color
         <span class="kd" style="color:var(--text)">Capital e Baixada/Interior · 2º semestre</span>
       </div>
     </div>
-    <div class="panel" style="min-height:0;">
+    <div class="panel" style="min-height:0; padding:.6rem 1rem;">
       <div style="display:flex; justify-content:space-between; align-items:baseline;">
         <span style="font-size:.78rem; font-weight:700; color:var(--text);">Meta anual de O.S. finalizadas</span>
         <span style="font-size:.7rem; color:var(--muted);">9.768 / 18.000 (54%)</span>
       </div>
-      <div class="progress-track"><div class="progress-fill" style="width:54%;"></div></div>
+      <div class="progress-track" style="height:10px; margin-top:.35rem;"><div class="progress-fill" style="width:54%;"></div></div>
     </div>
-    <div class="panel" style="flex:1; display:flex; flex-direction:column; min-height:0; gap:.6rem;">
+    <div class="panel" style="flex:1; display:flex; flex-direction:column; min-height:0; gap:.4rem; padding:.8rem 1rem;">
       <div style="font-size:.78rem; font-weight:700; color:var(--text);">Novos cronogramas planejados para o 2º semestre</div>
       <div class="proximos-cols">
         <div>
@@ -492,7 +492,7 @@ table.data-table tr:last-child td { border-bottom: none; font-weight: 700; color
         </div>
       </div>
     </div>
-    <div class="narrative">
+    <div class="narrative" style="padding:.7rem .9rem; font-size:.72rem;">
       Destaque estratégico do semestre: a expansão do <b>PCM Digital</b>, sistema próprio de Plano de Conservação e
       Manutenção que gera um <b>ranking de conservação predial</b> (índice BOM/REGULAR/RUIM por imóvel). Já em operação
       na Capital, o sistema passa a ser levado também para o Interior, permitindo priorizar os cronogramas de reforma
