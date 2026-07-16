@@ -1,0 +1,2464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relatório O.S. — JUNHO 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script>window._charts = []; window._chartInstances = [];</script>
+<style>
+:root {
+  --bg:     #080f0b;
+  --card:   #0c1910;
+  --card2:  #0f1e13;
+  --border: rgba(42,157,122,.16);
+  --green:  #2a9d7a;
+  --gold:   #c9a84c;
+  --text:   #e2efe5;
+  --muted:  #607a68;
+  --header: #0e2214;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-snap-type: y mandatory; overflow-y: scroll; background: var(--bg); }
+body { font-family: 'Inter', system-ui, sans-serif; color: var(--text); }
+
+/* ── Nav ── */
+#topnav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; gap: .4rem;
+  padding: .4rem 1rem;
+  background: rgba(8,15,11,.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { width:28px; height:28px; border-radius:50%; object-fit:cover; flex-shrink:0; margin-right:.3rem; }
+#topnav a {
+  color: var(--muted); text-decoration: none; font-size: .72rem; font-weight: 600;
+  padding: .2rem .6rem; border-radius: 20px; border: 1px solid transparent;
+  transition: all .15s; flex-shrink: 0; letter-spacing: .01em;
+}
+#topnav a:hover { color: var(--text); border-color: rgba(42,157,122,.3); }
+#topnav a.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+/* ── Slides ── */
+.slide {
+  height: 100dvh; scroll-snap-align: start; scroll-snap-stop: always;
+  padding-top: 42px; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+/* ── Cover ── */
+.cover-slide { padding: 0; position: relative; background: var(--bg); }
+.cover-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 70% at 75% 35%, rgba(42,157,122,.1) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 50% at 15% 85%, rgba(201,168,76,.07) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 90% 90%, rgba(42,157,122,.05) 0%, transparent 50%);
+}
+/* Decoração geométrica sutil no canto direito */
+.cover-bg::after {
+  content: '';
+  position: absolute; right: 0; top: 0; bottom: 0; width: 35%;
+  background: linear-gradient(135deg,
+    transparent 0%, rgba(42,157,122,.03) 40%, rgba(201,168,76,.04) 70%, transparent 100%);
+  border-left: 1px solid rgba(42,157,122,.08);
+}
+.cover-content {
+  position: relative; z-index: 1;
+  height: 100%; padding: 2.2rem 3rem 2rem;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.cover-header { display: flex; align-items: center; gap: 1rem; }
+.cover-logo { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(42,157,122,.3); }
+.cover-header-text { display: flex; flex-direction: column; gap: .12rem; }
+.cover-eyebrow { font-size: .7rem; font-weight: 700; color: var(--green); letter-spacing: .1em; text-transform: uppercase; }
+.cover-org { font-size: .8rem; color: var(--muted); }
+.cover-hero { }
+.cover-tag {
+  display: inline-block; font-size: .68rem; font-weight: 700;
+  color: var(--gold); border: 1px solid rgba(201,168,76,.35);
+  background: rgba(201,168,76,.08); padding: .2rem .7rem; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: .08em; margin-bottom: .9rem;
+}
+.cover-title {
+  font-size: clamp(3rem, 5.5vw, 4.8rem); font-weight: 900; line-height: 1.05;
+  color: var(--text); letter-spacing: -.03em;
+}
+.cover-title em { color: var(--green); font-style: normal; }
+.cover-mes { display: flex; align-items: baseline; gap: .6rem; margin-top: 1rem; }
+.cover-mes-name { font-size: 1.5rem; font-weight: 700; color: var(--text); }
+.cover-mes-ano  { font-size: 1.5rem; font-weight: 900; color: var(--gold); }
+.cover-kpis { display: flex; gap: 1rem; flex-wrap: wrap; }
+.cover-bar {
+  height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--green) 0%, var(--gold) 45%, transparent 100%);
+}
+
+/* ── KPI badges ── */
+.kpi { display: flex; flex-direction: column; align-items: center; padding: .55rem 1rem; border-radius: 12px; }
+.kpi-green { background: rgba(42,157,122,.1);  border: 1px solid rgba(42,157,122,.28); }
+.kpi-gold  { background: rgba(201,168,76,.09); border: 1px solid rgba(201,168,76,.28); }
+.kpi-muted { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); }
+.kv { font-size: 1.55rem; font-weight: 900; line-height: 1; }
+.kpi-green .kv { color: var(--green); }
+.kpi-gold  .kv { color: var(--gold); }
+.kpi-muted .kv { color: var(--text); }
+.kl { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: .22rem; white-space: nowrap; }
+
+/* ── Slide header ── */
+.slide-header {
+  flex-shrink: 0; display: flex; align-items: center; gap: .9rem;
+  padding: .5rem 1.2rem;
+  background: var(--header);
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(90deg, var(--gold) 0%, var(--green) 40%, transparent 100%) 1;
+  position: relative;
+}
+.geral-header {
+  border-image: linear-gradient(90deg, var(--green) 0%, var(--gold) 40%, transparent 100%) 1;
+}
+.slide-num {
+  font-size: 1.4rem; font-weight: 900; color: var(--gold);
+  background: rgba(201,168,76,.1); border: 1px solid rgba(201,168,76,.3);
+  border-radius: 9px; padding: .12rem .6rem; flex-shrink: 0; line-height: 1.4;
+}
+.slide-title-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.slide-eyebrow { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+.slide-title { font-size: .95rem; font-weight: 700; color: var(--text); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.slide-kpis { display: flex; gap: .5rem; flex-shrink: 0; }
+.slide-kpis .kpi { padding: .35rem .7rem; border-radius: 9px; }
+.slide-kpis .kv { font-size: 1rem; }
+.slide-kpis .kl { font-size: .58rem; }
+
+/* ── Slide body / grid ── */
+.slide-body {
+  flex: 1; min-height: 0; position: relative;
+  display: grid; gap: 5px; padding: 5px;
+}
+/* Número da região como marca d'água */
+.data-slide { position: relative; overflow: hidden; }
+.data-slide::before {
+  content: attr(data-wm);
+  position: absolute; right: -1rem; bottom: -2rem;
+  font-size: 22vw; font-weight: 900; line-height: 1;
+  color: rgba(42,157,122,.04);
+  pointer-events: none; z-index: 0; letter-spacing: -.05em;
+  user-select: none;
+}
+.slide-body > * { position: relative; z-index: 1; }
+
+.layout-grid {
+  grid-template-columns: 1.45fr 1fr 1.3fr;
+  grid-template-rows: 1fr 1fr;
+}
+.layout-grid .hbar-cell   { grid-column: 1; grid-row: 1/3; }
+.layout-grid .donut-cell:nth-of-type(2) { grid-column: 2; grid-row: 1; }
+.layout-grid .donut-cell:nth-of-type(3) { grid-column: 3; grid-row: 1; }
+.layout-grid .vbar-cell   { grid-column: 2; grid-row: 2; }
+.layout-grid .pareto-cell { grid-column: 3; grid-row: 2; }
+
+/* ── Chart cells ── */
+.chart-cell {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 10px;
+  display: flex; flex-direction: column;
+  min-height: 0; overflow: hidden;
+}
+/* hbar: destaque especial */
+.hbar-cell {
+  background: var(--card);
+  border-color: rgba(42,157,122,.22);
+  border-left: 3px solid var(--green);
+}
+/* donut: borda dourada sutil */
+.donut-cell { border-color: rgba(201,168,76,.15); }
+
+.clabel {
+  font-size: 8.5px; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; letter-spacing: .07em;
+  flex-shrink: 0; margin-bottom: 5px;
+}
+.cwrap { flex: 1; position: relative; min-height: 0; }
+.cwrap canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+
+/* Legend dos donuts */
+.legrow {
+  flex-shrink: 0; display: flex; flex-wrap: wrap;
+  gap: .15rem .6rem; margin-top: 4px; padding-top: 4px;
+  border-top: 1px solid rgba(255,255,255,.05);
+}
+.leg { display: flex; align-items: center; gap: 4px; font-size: 8px; color: var(--muted); }
+.leg i { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.leg span { flex: 1; }
+.leg b { color: var(--text); font-weight:700; margin-left:2px; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: rgba(42,157,122,.3); border-radius: 2px; }
+</style>
+</head>
+<body>
+<nav id="topnav"><img src="data:image/webp;base64,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" class="nav-logo" alt=""><a href="#cover">Capa</a><a href="#geral">Geral</a><a href="#rg01">R01</a><a href="#rg02">R02</a><a href="#rg03">R03</a><a href="#rg04">R04</a><a href="#rg05">R05</a><a href="#rg06">R06</a><a href="#rg07">R07</a><a href="#rg08">R08</a><a href="#rg09">R09</a><a href="#rg10">R10</a><a href="#rg11">R11</a><a href="#rg12">R12</a></nav>
+<section class="slide cover-slide" id="cover">
+  <div class="cover-bg"></div>
+  <div class="cover-content">
+    <header class="cover-header">
+      <img src="data:image/webp;base64,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" class="cover-logo" alt="DPERJ">
+      <div class="cover-header-text">
+        <span class="cover-eyebrow">COMAP · Coordenadoria de Manutenção Predial</span>
+        <span class="cover-org">Defensoria Pública do Estado do Rio de Janeiro</span>
+      </div>
+    </header>
+    <div class="cover-hero">
+      <div class="cover-tag">Análise Mensal de O.S.</div>
+      <h1 class="cover-title">Ordens de<br>Serviço <em>Baixada</em><br>e <em>Interior</em></h1>
+      <div class="cover-mes"><span class="cover-mes-name">Junho</span><span class="cover-mes-ano">2026</span></div>
+    </div>
+    <div class="cover-kpis">
+      <div class="kpi kpi-green"><span class="kv">820</span><span class="kl">O.S. no mês</span></div>
+      <div class="kpi kpi-gold"><span class="kv">76%</span><span class="kl">Taxa de execução</span></div>
+      <div class="kpi kpi-muted"><span class="kv">199</span><span class="kl">Em andamento</span></div>
+      <div class="kpi kpi-muted"><span class="kv">66%</span><span class="kl">Preventiva</span></div>
+    </div>
+    <div class="cover-bar"></div>
+  </div>
+</section><section class="slide data-slide" id="geral" data-wm="GRL">
+  <div class="slide-header geral-header">
+    <img src="data:image/webp;base64,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" class="nav-logo" alt="">
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Visão Consolidada · JUNHO 2026</span>
+      <span class="slide-title">Baixada e Interior — Todas as Regiões</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-green"><span class="kv">820</span><span class="kl">O.S. no mês</span></div>
+      <div class="kpi kpi-gold"><span class="kv">76%</span><span class="kl">Execução</span></div>
+    </div>
+  </div>
+  <div class="slide-body layout-grid">
+    <div class="chart-cell hbar-cell">
+  <p class="clabel">O.S. abertas por Região</p>
+  <div class="cwrap"><canvas id="g_reg"></canvas></div>
+  <script>window._charts.push(()=>{
+    var inst=new Chart(document.getElementById("g_reg"),{
+      type:"bar",
+      data:{labels:["REGIÃO 1", "REGIÃO 2", "REGIÃO 4", "REGIÃO 12", "REGIÃO 9", "REGIÃO 7", "REGIÃO 11", "REGIÃO 6", "REGIÃO 3", "REGIÃO 8", "REGIÃO 5", "REGIÃO 10"],datasets:[{
+        data:[146, 111, 94, 82, 64, 64, 64, 53, 43, 41, 40, 18],backgroundColor:"#2a9d7a",
+        borderRadius:5,barPercentage:0.62,categoryPercentage:0.85
+      }]},
+      options:{maintainAspectRatio:false,indexAxis:"y",
+        layout:{padding:{right:42}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"right",color:"#e2efe5",font:{size:11,weight:"700"}}
+        },
+        scales:{
+          x:{display:false,grid:{display:false}},
+          y:{ticks:{color:"#8aaa90",font:{size:9}},grid:{display:false},afterFit:s=>s.width=200}
+        }
+      },plugins:[ChartDataLabels]
+    });
+    window._chartInstances.push(inst);
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Indicador de Execução — JUNHO</p>
+  <div class="cwrap"><canvas id="g_exec"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Em andamento</span><b>24%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Concluída</span><b>76%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("g_exec"),{
+      type:"doughnut",
+      data:{labels:["Em andamento", "Concluída"],datasets:[{
+        data:[199, 621],backgroundColor:["#2a9d7a", "#c9a84c"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/820*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Natureza dos Serviços — JUNHO</p>
+  <div class="cwrap"><canvas id="g_nat"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Corretiva</span><b>17%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Preventiva</span><b>66%</b></span><span class="leg"><i style="background:#4a6e54"></i><span>Serviço de apoio e melhoria</span><b>17%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("g_nat"),{
+      type:"doughnut",
+      data:{labels:["Corretiva", "Preventiva", "Serviço de apoio e melhoria"],datasets:[{
+        data:[137, 526, 134],backgroundColor:["#2a9d7a", "#c9a84c", "#4a6e54"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/797*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell vbar-cell">
+  <p class="clabel">Em andamento por Setor — JUNHO</p>
+  <div class="cwrap"><canvas id="g_and"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("g_and"),{
+      type:"bar",
+      data:{labels:["P.A. Região 03", "P.A. Região 11", "P.A. Região 12", "COPRO", "COMAP Execução", "COMAP Requisição de Material à CETEST", "P.A. Região 05", "P.A. Região 06", "P.A. Região 02", "P.A. Região 01", "COMAP Agendamento", "COMAP Elaboração de Cronograma", "Processo Licitatório", "P.A. Região 09", "P.A. Região 07", "P.A. Região 04", "COMAP Triagem Materiais", "COTEM - Elétrica"],datasets:[{
+        data:[106, 72, 66, 51, 46, 35, 30, 27, 24, 19, 18, 17, 16, 15, 15, 15, 15, 13],
+        backgroundColor:function(ctx){
+          var v=ctx.dataset.data,mx=Math.max(...v);
+          return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
+        },
+        borderRadius:4
+      }]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"top",color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false}
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+    <div class="chart-cell pareto-cell">
+  <p class="clabel">Finalizadas por Setor — JUNHO</p>
+  <div class="cwrap"><canvas id="g_con"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("g_con"),{
+      type:"bar",
+      data:{labels:["P.A. Região 01", "P.A. Região 04", "P.A. Região 12", "P.A. Região 11", "P.A. Região 07", "P.A. Região 09", "P.A. Região 06", "P.A. Região 08", "P.A. Região 03", "P.A. Região 05", "P.A. Região 02", "P.A. Região 10", "Região da Capital"],datasets:[
+        {type:"bar",data:[143, 93, 77, 64, 61, 58, 48, 41, 41, 39, 30, 18, 6],backgroundColor:"#2a9d7a",borderRadius:4,yAxisID:"y"},
+        {type:"line",data:[19.9, 32.8, 43.5, 52.4, 60.9, 69.0, 75.7, 81.4, 87.1, 92.5, 96.7, 99.2, 100.0],borderColor:"#c9a84c",borderWidth:2,
+          pointBackgroundColor:"#c9a84c",pointRadius:3,fill:false,tension:0.1,yAxisID:"y2"}
+      ]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{display:c=>c.datasetIndex===0,anchor:"end",align:"top",
+            color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false},
+          y2:{position:"right",min:0,max:100,
+            ticks:{color:"#c9a84c",font:{size:9},callback:v=>v+"%"},
+            grid:{color:"rgba(201,168,76,.06)"}
+          }
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+  </div>
+</section><section class="slide data-slide" id="rg01" data-wm="R01">
+  <div class="slide-header">
+    <div class="slide-num">R01</div>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Análise de O.S. · JUNHO 2026</span>
+      <span class="slide-title">REGIÃO 01</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-green"><span class="kv">146</span><span class="kl">O.S. no mês</span></div>
+      <div class="kpi kpi-gold"><span class="kv">97%</span><span class="kl">Execução</span></div>
+      <div class="kpi kpi-muted"><span class="kv">4</span><span class="kl">Em andamento</span></div>
+      <div class="kpi kpi-muted"><span class="kv">61%</span><span class="kl">Preventiva</span></div>
+    </div>
+  </div>
+  <div class="slide-body layout-grid">
+    <div class="chart-cell hbar-cell">
+  <p class="clabel">O.S. em andamento por Comarca</p>
+  <div class="cwrap"><canvas id="r01_com"></canvas></div>
+  <script>window._charts.push(()=>{
+    var inst=new Chart(document.getElementById("r01_com"),{
+      type:"bar",
+      data:{labels:["COMARCA DE DUQUE DE CAXIAS", "COMARCA DE SÃO JOÃO DE MERITI", "COMARCA DE NOVA IGUAÇU", "COMARCA DE BELFORD ROXO", "COMARCA DE QUEIMADOS", "COMARCA DE MESQUITA"],datasets:[{
+        data:[22, 7, 5, 4, 3, 1],backgroundColor:"#2a9d7a",
+        borderRadius:5,barPercentage:0.62,categoryPercentage:0.85
+      }]},
+      options:{maintainAspectRatio:false,indexAxis:"y",
+        layout:{padding:{right:42}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"right",color:"#e2efe5",font:{size:11,weight:"700"}}
+        },
+        scales:{
+          x:{display:false,grid:{display:false}},
+          y:{ticks:{color:"#8aaa90",font:{size:9}},grid:{display:false},afterFit:s=>s.width=200}
+        }
+      },plugins:[ChartDataLabels]
+    });
+    window._chartInstances.push(inst);
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Indicador de Execução — JUNHO</p>
+  <div class="cwrap"><canvas id="r01_exec"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Em andamento</span><b>3%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Concluída</span><b>97%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r01_exec"),{
+      type:"doughnut",
+      data:{labels:["Em andamento", "Concluída"],datasets:[{
+        data:[4, 142],backgroundColor:["#2a9d7a", "#c9a84c"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/146*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Natureza dos Serviços — JUNHO</p>
+  <div class="cwrap"><canvas id="r01_nat"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Corretiva</span><b>28%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Preventiva</span><b>61%</b></span><span class="leg"><i style="background:#4a6e54"></i><span>Serviço de apoio e melhoria</span><b>11%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r01_nat"),{
+      type:"doughnut",
+      data:{labels:["Corretiva", "Preventiva", "Serviço de apoio e melhoria"],datasets:[{
+        data:[27, 59, 11],backgroundColor:["#2a9d7a", "#c9a84c", "#4a6e54"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/97*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell vbar-cell">
+  <p class="clabel">Por Setor — JUNHO</p>
+  <div class="cwrap"><canvas id="r01_set"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r01_set"),{
+      type:"bar",
+      data:{labels:["P.A. Região 01", "Processo Licitatório", "COMAP Requisição de Material à CETEST", "COTEM - Projetos", "COFEC", "Segurança do Trabalho", "COMAP Triagem Materiais", "COMAP Elaboração de Cronograma", "COTEM - Elétrica", "COPRO", "COMAP Separação de materiais", "COMAP Agendamento", "COMAP"],datasets:[{
+        data:[17, 4, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1, 1],
+        backgroundColor:function(ctx){
+          var v=ctx.dataset.data,mx=Math.max(...v);
+          return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
+        },
+        borderRadius:4
+      }]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"top",color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false}
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+    <div class="chart-cell pareto-cell">
+  <p class="clabel">Por Tipificação — JUNHO</p>
+  <div class="cwrap"><canvas id="r01_tip"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r01_tip"),{
+      type:"bar",
+      data:{labels:["Outros", "Mudança de layout", "Marcenaria", "Instalações elétricas", "Refrigeração", "Pinturas", "Instalações Hidrossanitárias", "Estruturas", "Vidros", "Serralheria", "Projetos", "Coberturas"],datasets:[
+        {type:"bar",data:[14, 6, 4, 4, 3, 3, 2, 2, 1, 1, 1, 1],backgroundColor:"#2a9d7a",borderRadius:4,yAxisID:"y"},
+        {type:"line",data:[33.3, 47.6, 57.1, 66.7, 73.8, 81.0, 85.7, 90.5, 92.9, 95.2, 97.6, 100.0],borderColor:"#c9a84c",borderWidth:2,
+          pointBackgroundColor:"#c9a84c",pointRadius:3,fill:false,tension:0.1,yAxisID:"y2"}
+      ]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{display:c=>c.datasetIndex===0,anchor:"end",align:"top",
+            color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false},
+          y2:{position:"right",min:0,max:100,
+            ticks:{color:"#c9a84c",font:{size:9},callback:v=>v+"%"},
+            grid:{color:"rgba(201,168,76,.06)"}
+          }
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+  </div>
+</section><section class="slide data-slide" id="rg02" data-wm="R02">
+  <div class="slide-header">
+    <div class="slide-num">R02</div>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Análise de O.S. · JUNHO 2026</span>
+      <span class="slide-title">REGIÃO 02</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-green"><span class="kv">111</span><span class="kl">O.S. no mês</span></div>
+      <div class="kpi kpi-gold"><span class="kv">92%</span><span class="kl">Execução</span></div>
+      <div class="kpi kpi-muted"><span class="kv">9</span><span class="kl">Em andamento</span></div>
+      <div class="kpi kpi-muted"><span class="kv">73%</span><span class="kl">Preventiva</span></div>
+    </div>
+  </div>
+  <div class="slide-body layout-grid">
+    <div class="chart-cell hbar-cell">
+  <p class="clabel">O.S. em andamento por Comarca</p>
+  <div class="cwrap"><canvas id="r02_com"></canvas></div>
+  <script>window._charts.push(()=>{
+    var inst=new Chart(document.getElementById("r02_com"),{
+      type:"bar",
+      data:{labels:["COMARCA DE SÃO GONÇALO", "COMARCA DE NITERÓI", "COMARCA DE ITABORAÍ", "COMARCA DE MAGÉ", "COMARCA DE GUAPIMIRIM"],datasets:[{
+        data:[43, 17, 10, 4, 3],backgroundColor:"#2a9d7a",
+        borderRadius:5,barPercentage:0.62,categoryPercentage:0.85
+      }]},
+      options:{maintainAspectRatio:false,indexAxis:"y",
+        layout:{padding:{right:42}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"right",color:"#e2efe5",font:{size:11,weight:"700"}}
+        },
+        scales:{
+          x:{display:false,grid:{display:false}},
+          y:{ticks:{color:"#8aaa90",font:{size:9}},grid:{display:false},afterFit:s=>s.width=200}
+        }
+      },plugins:[ChartDataLabels]
+    });
+    window._chartInstances.push(inst);
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Indicador de Execução — JUNHO</p>
+  <div class="cwrap"><canvas id="r02_exec"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Em andamento</span><b>8%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Concluída</span><b>92%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r02_exec"),{
+      type:"doughnut",
+      data:{labels:["Em andamento", "Concluída"],datasets:[{
+        data:[9, 102],backgroundColor:["#2a9d7a", "#c9a84c"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/111*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Natureza dos Serviços — JUNHO</p>
+  <div class="cwrap"><canvas id="r02_nat"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Corretiva</span><b>17%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Preventiva</span><b>73%</b></span><span class="leg"><i style="background:#4a6e54"></i><span>Serviço de apoio e melhoria</span><b>10%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r02_nat"),{
+      type:"doughnut",
+      data:{labels:["Corretiva", "Preventiva", "Serviço de apoio e melhoria"],datasets:[{
+        data:[26, 112, 16],backgroundColor:["#2a9d7a", "#c9a84c", "#4a6e54"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/154*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell vbar-cell">
+  <p class="clabel">Por Setor — JUNHO</p>
+  <div class="cwrap"><canvas id="r02_set"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r02_set"),{
+      type:"bar",
+      data:{labels:["P.A. Região 02", "COPRO", "COMAP Agendamento", "COMAP Requisição de Material à CETEST", "COMAP Execução", "COMAP Elaboração de Cronograma", "Processo Licitatório", "COTEM - Elétrica", "COMAP Triagem Materiais", "NAOP Orçamento/Compra", "COTEM - Projetos", "COTEM - Mecânica", "COTEM - Infraestrutura de Rede", "COMAP Serviços Eventuais", "COMAP Análise CIVIL Regionais", "COMAP"],datasets:[{
+        data:[27, 14, 8, 6, 5, 4, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1],
+        backgroundColor:function(ctx){
+          var v=ctx.dataset.data,mx=Math.max(...v);
+          return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
+        },
+        borderRadius:4
+      }]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"top",color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false}
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+    <div class="chart-cell pareto-cell">
+  <p class="clabel">Por Tipificação — JUNHO</p>
+  <div class="cwrap"><canvas id="r02_tip"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r02_tip"),{
+      type:"bar",
+      data:{labels:["Instalações elétricas", "Instalações Hidrossanitárias", "Refrigeração", "Mudança de layout", "Pinturas", "Vidros", "Marcenaria", "Redes", "Projetos", "Serralheria", "Revestimento de piso", "Manutenção geral", "Impermeabilizações", "Estruturas, Impermeabilizações", "Coberturas", "Alvenarias"],datasets:[
+        {type:"bar",data:[11, 10, 8, 8, 7, 3, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1],backgroundColor:"#2a9d7a",borderRadius:4,yAxisID:"y"},
+        {type:"line",data:[18.0, 34.4, 47.5, 60.7, 72.1, 77.0, 82.0, 85.2, 88.5, 90.2, 91.8, 93.4, 95.1, 96.7, 98.4, 100.0],borderColor:"#c9a84c",borderWidth:2,
+          pointBackgroundColor:"#c9a84c",pointRadius:3,fill:false,tension:0.1,yAxisID:"y2"}
+      ]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{display:c=>c.datasetIndex===0,anchor:"end",align:"top",
+            color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false},
+          y2:{position:"right",min:0,max:100,
+            ticks:{color:"#c9a84c",font:{size:9},callback:v=>v+"%"},
+            grid:{color:"rgba(201,168,76,.06)"}
+          }
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+  </div>
+</section><section class="slide data-slide" id="rg03" data-wm="R03">
+  <div class="slide-header">
+    <div class="slide-num">R03</div>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Análise de O.S. · JUNHO 2026</span>
+      <span class="slide-title">REGIÃO 03</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-green"><span class="kv">43</span><span class="kl">O.S. no mês</span></div>
+      <div class="kpi kpi-gold"><span class="kv">12%</span><span class="kl">Execução</span></div>
+      <div class="kpi kpi-muted"><span class="kv">38</span><span class="kl">Em andamento</span></div>
+      <div class="kpi kpi-muted"><span class="kv">82%</span><span class="kl">Preventiva</span></div>
+    </div>
+  </div>
+  <div class="slide-body layout-grid">
+    <div class="chart-cell hbar-cell">
+  <p class="clabel">O.S. em andamento por Comarca</p>
+  <div class="cwrap"><canvas id="r03_com"></canvas></div>
+  <script>window._charts.push(()=>{
+    var inst=new Chart(document.getElementById("r03_com"),{
+      type:"bar",
+      data:{labels:["COMARCA DE ARARUAMA", "COMARCA DE MARICÁ", "COMARCA DE CABO FRIO", "COMARCA DE SAQUAREMA", "COMARCA DE ARMAÇÃO DOS BÚZIOS", "COMARCA DE SILVA JARDIM", "COMARCA DE SÃO PEDRO DA ALDEIA", "COMARCA DE RIO BONITO", "COMARCA IGUABA GRANDE", "COMARCA DE ARRAIAL DO CABO"],datasets:[{
+        data:[34, 30, 18, 17, 14, 5, 4, 3, 1, 1],backgroundColor:"#2a9d7a",
+        borderRadius:5,barPercentage:0.62,categoryPercentage:0.85
+      }]},
+      options:{maintainAspectRatio:false,indexAxis:"y",
+        layout:{padding:{right:42}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"right",color:"#e2efe5",font:{size:11,weight:"700"}}
+        },
+        scales:{
+          x:{display:false,grid:{display:false}},
+          y:{ticks:{color:"#8aaa90",font:{size:9}},grid:{display:false},afterFit:s=>s.width=200}
+        }
+      },plugins:[ChartDataLabels]
+    });
+    window._chartInstances.push(inst);
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Indicador de Execução — JUNHO</p>
+  <div class="cwrap"><canvas id="r03_exec"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Em andamento</span><b>88%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Concluída</span><b>12%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r03_exec"),{
+      type:"doughnut",
+      data:{labels:["Em andamento", "Concluída"],datasets:[{
+        data:[38, 5],backgroundColor:["#2a9d7a", "#c9a84c"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/43*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Natureza dos Serviços — JUNHO</p>
+  <div class="cwrap"><canvas id="r03_nat"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Corretiva</span><b>6%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Preventiva</span><b>82%</b></span><span class="leg"><i style="background:#4a6e54"></i><span>Serviço de apoio e melhoria</span><b>13%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r03_nat"),{
+      type:"doughnut",
+      data:{labels:["Corretiva", "Preventiva", "Serviço de apoio e melhoria"],datasets:[{
+        data:[4, 58, 9],backgroundColor:["#2a9d7a", "#c9a84c", "#4a6e54"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/71*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell vbar-cell">
+  <p class="clabel">Por Setor — JUNHO</p>
+  <div class="cwrap"><canvas id="r03_set"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r03_set"),{
+      type:"bar",
+      data:{labels:["P.A. Região 03", "COPRO", "COMAP Elaboração de Cronograma", "COMAP Requisição de Material à CETEST", "COTEM - Projetos", "COMAP Triagem Materiais", "COMAP Elaboração de Relatórios", "COMAP Agendamento"],datasets:[{
+        data:[107, 7, 6, 2, 1, 1, 1, 1],
+        backgroundColor:function(ctx){
+          var v=ctx.dataset.data,mx=Math.max(...v);
+          return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
+        },
+        borderRadius:4
+      }]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"top",color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false}
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+    <div class="chart-cell pareto-cell">
+  <p class="clabel">Por Tipificação — JUNHO</p>
+  <div class="cwrap"><canvas id="r03_tip"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r03_tip"),{
+      type:"bar",
+      data:{labels:["Refrigeração", "Instalações Hidrossanitárias", "Redes", "Outros", "Mudança de layout", "Instalações elétricas", "Serralheria", "Marcenaria", "Projetos", "Pinturas, Instalações Hidrossanitárias, Manutenção geral", "Pinturas", "Coberturas"],datasets:[
+        {type:"bar",data:[93, 7, 6, 4, 4, 4, 2, 2, 1, 1, 1, 1],backgroundColor:"#2a9d7a",borderRadius:4,yAxisID:"y"},
+        {type:"line",data:[73.8, 79.4, 84.1, 87.3, 90.5, 93.7, 95.2, 96.8, 97.6, 98.4, 99.2, 100.0],borderColor:"#c9a84c",borderWidth:2,
+          pointBackgroundColor:"#c9a84c",pointRadius:3,fill:false,tension:0.1,yAxisID:"y2"}
+      ]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{display:c=>c.datasetIndex===0,anchor:"end",align:"top",
+            color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false},
+          y2:{position:"right",min:0,max:100,
+            ticks:{color:"#c9a84c",font:{size:9},callback:v=>v+"%"},
+            grid:{color:"rgba(201,168,76,.06)"}
+          }
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+  </div>
+</section><section class="slide data-slide" id="rg04" data-wm="R04">
+  <div class="slide-header">
+    <div class="slide-num">R04</div>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Análise de O.S. · JUNHO 2026</span>
+      <span class="slide-title">REGIÃO 04</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-green"><span class="kv">94</span><span class="kl">O.S. no mês</span></div>
+      <div class="kpi kpi-gold"><span class="kv">99%</span><span class="kl">Execução</span></div>
+      <div class="kpi kpi-muted"><span class="kv">1</span><span class="kl">Em andamento</span></div>
+      <div class="kpi kpi-muted"><span class="kv">55%</span><span class="kl">Preventiva</span></div>
+    </div>
+  </div>
+  <div class="slide-body layout-grid">
+    <div class="chart-cell hbar-cell">
+  <p class="clabel">O.S. em andamento por Comarca</p>
+  <div class="cwrap"><canvas id="r04_com"></canvas></div>
+  <script>window._charts.push(()=>{
+    var inst=new Chart(document.getElementById("r04_com"),{
+      type:"bar",
+      data:{labels:["COMARCA DE BARRA MANSA", "COMARCA DE VOLTA REDONDA", "COMARCA DE PORTO REAL / QUATIS", "COMARCA DE RESENDE", "COMARCA DE RIO CLARO", "COMARCA DE ITATIAIA", "COMARCA DE PIRAÍ", "COMARCA DE PINHEIRAL"],datasets:[{
+        data:[13, 7, 6, 5, 3, 3, 2, 1],backgroundColor:"#2a9d7a",
+        borderRadius:5,barPercentage:0.62,categoryPercentage:0.85
+      }]},
+      options:{maintainAspectRatio:false,indexAxis:"y",
+        layout:{padding:{right:42}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"right",color:"#e2efe5",font:{size:11,weight:"700"}}
+        },
+        scales:{
+          x:{display:false,grid:{display:false}},
+          y:{ticks:{color:"#8aaa90",font:{size:9}},grid:{display:false},afterFit:s=>s.width=200}
+        }
+      },plugins:[ChartDataLabels]
+    });
+    window._chartInstances.push(inst);
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Indicador de Execução — JUNHO</p>
+  <div class="cwrap"><canvas id="r04_exec"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Em andamento</span><b>1%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Concluída</span><b>99%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r04_exec"),{
+      type:"doughnut",
+      data:{labels:["Em andamento", "Concluída"],datasets:[{
+        data:[1, 93],backgroundColor:["#2a9d7a", "#c9a84c"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/94*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Natureza dos Serviços — JUNHO</p>
+  <div class="cwrap"><canvas id="r04_nat"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Corretiva</span><b>29%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Preventiva</span><b>55%</b></span><span class="leg"><i style="background:#4a6e54"></i><span>Serviço de apoio e melhoria</span><b>16%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r04_nat"),{
+      type:"doughnut",
+      data:{labels:["Corretiva", "Preventiva", "Serviço de apoio e melhoria"],datasets:[{
+        data:[24, 46, 13],backgroundColor:["#2a9d7a", "#c9a84c", "#4a6e54"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/83*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell vbar-cell">
+  <p class="clabel">Por Setor — JUNHO</p>
+  <div class="cwrap"><canvas id="r04_set"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r04_set"),{
+      type:"bar",
+      data:{labels:["P.A. Região 04", "Segurança do Trabalho", "COPRO", "COMAP Triagem Materiais", "Processo Licitatório", "COMAP Elaboração de Cronograma", "NAOP Orçamento/Compra", "COTEM - Mecânica", "COTEM - Infraestrutura de Rede", "COMAP Requisição de Material à CETEST", "COMAP Análise CIVIL Regionais"],datasets:[{
+        data:[12, 7, 7, 4, 3, 2, 1, 1, 1, 1, 1],
+        backgroundColor:function(ctx){
+          var v=ctx.dataset.data,mx=Math.max(...v);
+          return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
+        },
+        borderRadius:4
+      }]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"top",color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false}
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+    <div class="chart-cell pareto-cell">
+  <p class="clabel">Por Tipificação — JUNHO</p>
+  <div class="cwrap"><canvas id="r04_tip"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r04_tip"),{
+      type:"bar",
+      data:{labels:["Instalações elétricas", "Refrigeração", "Pinturas", "Redes", "Outros", "Mudança de layout", "Instalações Hidrossanitárias", "Obra", "Impermeabilizações", "Coberturas", "Serralheria", "Marcenaria"],datasets:[
+        {type:"bar",data:[9, 6, 5, 3, 3, 3, 3, 2, 2, 2, 1, 1],backgroundColor:"#2a9d7a",borderRadius:4,yAxisID:"y"},
+        {type:"line",data:[22.5, 37.5, 50.0, 57.5, 65.0, 72.5, 80.0, 85.0, 90.0, 95.0, 97.5, 100.0],borderColor:"#c9a84c",borderWidth:2,
+          pointBackgroundColor:"#c9a84c",pointRadius:3,fill:false,tension:0.1,yAxisID:"y2"}
+      ]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{display:c=>c.datasetIndex===0,anchor:"end",align:"top",
+            color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false},
+          y2:{position:"right",min:0,max:100,
+            ticks:{color:"#c9a84c",font:{size:9},callback:v=>v+"%"},
+            grid:{color:"rgba(201,168,76,.06)"}
+          }
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+  </div>
+</section><section class="slide data-slide" id="rg05" data-wm="R05">
+  <div class="slide-header">
+    <div class="slide-num">R05</div>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Análise de O.S. · JUNHO 2026</span>
+      <span class="slide-title">REGIÃO 05</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-green"><span class="kv">40</span><span class="kl">O.S. no mês</span></div>
+      <div class="kpi kpi-gold"><span class="kv">90%</span><span class="kl">Execução</span></div>
+      <div class="kpi kpi-muted"><span class="kv">4</span><span class="kl">Em andamento</span></div>
+      <div class="kpi kpi-muted"><span class="kv">63%</span><span class="kl">Preventiva</span></div>
+    </div>
+  </div>
+  <div class="slide-body layout-grid">
+    <div class="chart-cell hbar-cell">
+  <p class="clabel">O.S. em andamento por Comarca</p>
+  <div class="cwrap"><canvas id="r05_com"></canvas></div>
+  <script>window._charts.push(()=>{
+    var inst=new Chart(document.getElementById("r05_com"),{
+      type:"bar",
+      data:{labels:["COMARCA DE NOVA FRIBURGO", "COMARCA DE DUAS BARRAS", "COMARCA DE BOM JARDIM", "COMARCA DE TRAJANO DE MORAES", "COMARCA DE SANTA MARIA MADALENA", "COMARCA DE CANTAGALO", "COMARCA DE CACHOEIRAS DE MACACU", "COMARCA DE SÃO SEBASTIÃO DO ALTO"],datasets:[{
+        data:[30, 6, 3, 2, 2, 2, 2, 1],backgroundColor:"#2a9d7a",
+        borderRadius:5,barPercentage:0.62,categoryPercentage:0.85
+      }]},
+      options:{maintainAspectRatio:false,indexAxis:"y",
+        layout:{padding:{right:42}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"right",color:"#e2efe5",font:{size:11,weight:"700"}}
+        },
+        scales:{
+          x:{display:false,grid:{display:false}},
+          y:{ticks:{color:"#8aaa90",font:{size:9}},grid:{display:false},afterFit:s=>s.width=200}
+        }
+      },plugins:[ChartDataLabels]
+    });
+    window._chartInstances.push(inst);
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Indicador de Execução — JUNHO</p>
+  <div class="cwrap"><canvas id="r05_exec"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Em andamento</span><b>10%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Concluída</span><b>90%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r05_exec"),{
+      type:"doughnut",
+      data:{labels:["Em andamento", "Concluída"],datasets:[{
+        data:[4, 36],backgroundColor:["#2a9d7a", "#c9a84c"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/40*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Natureza dos Serviços — JUNHO</p>
+  <div class="cwrap"><canvas id="r05_nat"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Corretiva</span><b>22%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Preventiva</span><b>63%</b></span><span class="leg"><i style="background:#4a6e54"></i><span>Serviço de apoio e melhoria</span><b>14%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r05_nat"),{
+      type:"doughnut",
+      data:{labels:["Corretiva", "Preventiva", "Serviço de apoio e melhoria"],datasets:[{
+        data:[11, 31, 7],backgroundColor:["#2a9d7a", "#c9a84c", "#4a6e54"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/49*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell vbar-cell">
+  <p class="clabel">Por Setor — JUNHO</p>
+  <div class="cwrap"><canvas id="r05_set"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r05_set"),{
+      type:"bar",
+      data:{labels:["P.A. Região 05", "COPRO", "COTEM - Projetos", "COMAP Elaboração de Relatórios", "Processo Licitatório", "P.A. Região 07", "COTEM - Elétrica", "COMAP Triagem Materiais", "COMAP Serviços Eventuais", "COMAP Análise CIVIL Regionais", "COFEC"],datasets:[{
+        data:[29, 7, 3, 2, 1, 1, 1, 1, 1, 1, 1],
+        backgroundColor:function(ctx){
+          var v=ctx.dataset.data,mx=Math.max(...v);
+          return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
+        },
+        borderRadius:4
+      }]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"top",color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false}
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+    <div class="chart-cell pareto-cell">
+  <p class="clabel">Por Tipificação — JUNHO</p>
+  <div class="cwrap"><canvas id="r05_tip"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r05_tip"),{
+      type:"bar",
+      data:{labels:["Refrigeração", "Mudança de layout", "Instalações elétricas, Redes", "Outros", "Instalações elétricas", "Instalações Hidrossanitárias", "Vidros", "Projetos", "Pinturas", "Impermeabilizações", "Coberturas"],datasets:[
+        {type:"bar",data:[22, 5, 5, 4, 4, 3, 1, 1, 1, 1, 1],backgroundColor:"#2a9d7a",borderRadius:4,yAxisID:"y"},
+        {type:"line",data:[45.8, 56.2, 66.7, 75.0, 83.3, 89.6, 91.7, 93.8, 95.8, 97.9, 100.0],borderColor:"#c9a84c",borderWidth:2,
+          pointBackgroundColor:"#c9a84c",pointRadius:3,fill:false,tension:0.1,yAxisID:"y2"}
+      ]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{display:c=>c.datasetIndex===0,anchor:"end",align:"top",
+            color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false},
+          y2:{position:"right",min:0,max:100,
+            ticks:{color:"#c9a84c",font:{size:9},callback:v=>v+"%"},
+            grid:{color:"rgba(201,168,76,.06)"}
+          }
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+  </div>
+</section><section class="slide data-slide" id="rg06" data-wm="R06">
+  <div class="slide-header">
+    <div class="slide-num">R06</div>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Análise de O.S. · JUNHO 2026</span>
+      <span class="slide-title">REGIÃO 06</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-green"><span class="kv">53</span><span class="kl">O.S. no mês</span></div>
+      <div class="kpi kpi-gold"><span class="kv">89%</span><span class="kl">Execução</span></div>
+      <div class="kpi kpi-muted"><span class="kv">6</span><span class="kl">Em andamento</span></div>
+      <div class="kpi kpi-muted"><span class="kv">85%</span><span class="kl">Preventiva</span></div>
+    </div>
+  </div>
+  <div class="slide-body layout-grid">
+    <div class="chart-cell hbar-cell">
+  <p class="clabel">O.S. em andamento por Comarca</p>
+  <div class="cwrap"><canvas id="r06_com"></canvas></div>
+  <script>window._charts.push(()=>{
+    var inst=new Chart(document.getElementById("r06_com"),{
+      type:"bar",
+      data:{labels:["COMARCA DE PETRÓPOLIS", "COMARCA DE PARAÍBA DO SUL", "COMARCA DE TRÊS RIOS", "COMARCA DE PATY DO ALFERES", "COMARCA DE MIGUEL PEREIRA"],datasets:[{
+        data:[20, 11, 6, 5, 1],backgroundColor:"#2a9d7a",
+        borderRadius:5,barPercentage:0.62,categoryPercentage:0.85
+      }]},
+      options:{maintainAspectRatio:false,indexAxis:"y",
+        layout:{padding:{right:42}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"right",color:"#e2efe5",font:{size:11,weight:"700"}}
+        },
+        scales:{
+          x:{display:false,grid:{display:false}},
+          y:{ticks:{color:"#8aaa90",font:{size:9}},grid:{display:false},afterFit:s=>s.width=200}
+        }
+      },plugins:[ChartDataLabels]
+    });
+    window._chartInstances.push(inst);
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Indicador de Execução — JUNHO</p>
+  <div class="cwrap"><canvas id="r06_exec"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Em andamento</span><b>11%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Concluída</span><b>89%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r06_exec"),{
+      type:"doughnut",
+      data:{labels:["Em andamento", "Concluída"],datasets:[{
+        data:[6, 47],backgroundColor:["#2a9d7a", "#c9a84c"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/53*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Natureza dos Serviços — JUNHO</p>
+  <div class="cwrap"><canvas id="r06_nat"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Corretiva</span><b>6%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Preventiva</span><b>85%</b></span><span class="leg"><i style="background:#4a6e54"></i><span>Serviço de apoio e melhoria</span><b>9%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r06_nat"),{
+      type:"doughnut",
+      data:{labels:["Corretiva", "Preventiva", "Serviço de apoio e melhoria"],datasets:[{
+        data:[4, 57, 6],backgroundColor:["#2a9d7a", "#c9a84c", "#4a6e54"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/67*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell vbar-cell">
+  <p class="clabel">Por Setor — JUNHO</p>
+  <div class="cwrap"><canvas id="r06_set"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r06_set"),{
+      type:"bar",
+      data:{labels:["P.A. Região 06", "COMAP Requisição de Material à CETEST", "Processo Licitatório", "COPRO", "COMAP Elaboração de Relatórios", "COTEM - Elétrica", "COMAP Triagem Materiais"],datasets:[{
+        data:[29, 6, 2, 2, 2, 1, 1],
+        backgroundColor:function(ctx){
+          var v=ctx.dataset.data,mx=Math.max(...v);
+          return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
+        },
+        borderRadius:4
+      }]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"top",color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false}
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+    <div class="chart-cell pareto-cell">
+  <p class="clabel">Por Tipificação — JUNHO</p>
+  <div class="cwrap"><canvas id="r06_tip"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r06_tip"),{
+      type:"bar",
+      data:{labels:["Outros", "Refrigeração", "Instalações elétricas", "Marcenaria", "Mudança de layout", "Instalações Hidrossanitárias", "Serralheria", "Revestimento de piso", "Pinturas", "Impermeabilizações"],datasets:[
+        {type:"bar",data:[9, 8, 6, 5, 4, 4, 2, 2, 2, 1],backgroundColor:"#2a9d7a",borderRadius:4,yAxisID:"y"},
+        {type:"line",data:[20.9, 39.5, 53.5, 65.1, 74.4, 83.7, 88.4, 93.0, 97.7, 100.0],borderColor:"#c9a84c",borderWidth:2,
+          pointBackgroundColor:"#c9a84c",pointRadius:3,fill:false,tension:0.1,yAxisID:"y2"}
+      ]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{display:c=>c.datasetIndex===0,anchor:"end",align:"top",
+            color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false},
+          y2:{position:"right",min:0,max:100,
+            ticks:{color:"#c9a84c",font:{size:9},callback:v=>v+"%"},
+            grid:{color:"rgba(201,168,76,.06)"}
+          }
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+  </div>
+</section><section class="slide data-slide" id="rg07" data-wm="R07">
+  <div class="slide-header">
+    <div class="slide-num">R07</div>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Análise de O.S. · JUNHO 2026</span>
+      <span class="slide-title">REGIÃO 07</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-green"><span class="kv">64</span><span class="kl">O.S. no mês</span></div>
+      <div class="kpi kpi-gold"><span class="kv">94%</span><span class="kl">Execução</span></div>
+      <div class="kpi kpi-muted"><span class="kv">4</span><span class="kl">Em andamento</span></div>
+      <div class="kpi kpi-muted"><span class="kv">36%</span><span class="kl">Preventiva</span></div>
+    </div>
+  </div>
+  <div class="slide-body layout-grid">
+    <div class="chart-cell hbar-cell">
+  <p class="clabel">O.S. em andamento por Comarca</p>
+  <div class="cwrap"><canvas id="r07_com"></canvas></div>
+  <script>window._charts.push(()=>{
+    var inst=new Chart(document.getElementById("r07_com"),{
+      type:"bar",
+      data:{labels:["COMARCA DE ITAPERUNA", "COMARCA DE NATIVIDADE", "COMARCA DE CAMBUCI", "COMARCA DE PORCIÚNCULA", "COMARCA DE ITAOCARA", "COMARCA DE BOM JESUS DE ITABAPOANA", "COMARCA DE SANTO ANTÔNIO DE PÁDUA", "COMARCA DE MIRACEMA", "COMARCA DE LAJE DO MURIAÉ"],datasets:[{
+        data:[8, 5, 3, 2, 2, 2, 1, 1, 1],backgroundColor:"#2a9d7a",
+        borderRadius:5,barPercentage:0.62,categoryPercentage:0.85
+      }]},
+      options:{maintainAspectRatio:false,indexAxis:"y",
+        layout:{padding:{right:42}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"right",color:"#e2efe5",font:{size:11,weight:"700"}}
+        },
+        scales:{
+          x:{display:false,grid:{display:false}},
+          y:{ticks:{color:"#8aaa90",font:{size:9}},grid:{display:false},afterFit:s=>s.width=200}
+        }
+      },plugins:[ChartDataLabels]
+    });
+    window._chartInstances.push(inst);
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Indicador de Execução — JUNHO</p>
+  <div class="cwrap"><canvas id="r07_exec"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Em andamento</span><b>6%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Concluída</span><b>94%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r07_exec"),{
+      type:"doughnut",
+      data:{labels:["Em andamento", "Concluída"],datasets:[{
+        data:[4, 60],backgroundColor:["#2a9d7a", "#c9a84c"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/64*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Natureza dos Serviços — JUNHO</p>
+  <div class="cwrap"><canvas id="r07_nat"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Corretiva</span><b>10%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Preventiva</span><b>36%</b></span><span class="leg"><i style="background:#4a6e54"></i><span>Serviço de apoio e melhoria</span><b>55%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r07_nat"),{
+      type:"doughnut",
+      data:{labels:["Corretiva", "Preventiva", "Serviço de apoio e melhoria"],datasets:[{
+        data:[7, 26, 40],backgroundColor:["#2a9d7a", "#c9a84c", "#4a6e54"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/73*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell vbar-cell">
+  <p class="clabel">Por Setor — JUNHO</p>
+  <div class="cwrap"><canvas id="r07_set"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r07_set"),{
+      type:"bar",
+      data:{labels:["P.A. Região 07", "COPRO", "COMAP Requisição de Material à CETEST", "COMAP Agendamento", "COFEC", "COTEM - Projetos", "COTEM - Infraestrutura de Rede", "COTEM - Elétrica"],datasets:[{
+        data:[13, 3, 2, 2, 2, 1, 1, 1],
+        backgroundColor:function(ctx){
+          var v=ctx.dataset.data,mx=Math.max(...v);
+          return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
+        },
+        borderRadius:4
+      }]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"top",color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false}
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+    <div class="chart-cell pareto-cell">
+  <p class="clabel">Por Tipificação — JUNHO</p>
+  <div class="cwrap"><canvas id="r07_tip"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r07_tip"),{
+      type:"bar",
+      data:{labels:["Instalações Hidrossanitárias", "Outros", "Mudança de layout", "Instalações elétricas", "Serralheria", "Refrigeração", "Redes", "Pinturas", "Coberturas"],datasets:[
+        {type:"bar",data:[7, 4, 3, 3, 2, 2, 2, 1, 1],backgroundColor:"#2a9d7a",borderRadius:4,yAxisID:"y"},
+        {type:"line",data:[28.0, 44.0, 56.0, 68.0, 76.0, 84.0, 92.0, 96.0, 100.0],borderColor:"#c9a84c",borderWidth:2,
+          pointBackgroundColor:"#c9a84c",pointRadius:3,fill:false,tension:0.1,yAxisID:"y2"}
+      ]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{display:c=>c.datasetIndex===0,anchor:"end",align:"top",
+            color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false},
+          y2:{position:"right",min:0,max:100,
+            ticks:{color:"#c9a84c",font:{size:9},callback:v=>v+"%"},
+            grid:{color:"rgba(201,168,76,.06)"}
+          }
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+  </div>
+</section><section class="slide data-slide" id="rg08" data-wm="R08">
+  <div class="slide-header">
+    <div class="slide-num">R08</div>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Análise de O.S. · JUNHO 2026</span>
+      <span class="slide-title">REGIÃO 08</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-green"><span class="kv">41</span><span class="kl">O.S. no mês</span></div>
+      <div class="kpi kpi-gold"><span class="kv">100%</span><span class="kl">Execução</span></div>
+      <div class="kpi kpi-muted"><span class="kv">0</span><span class="kl">Em andamento</span></div>
+      <div class="kpi kpi-muted"><span class="kv">84%</span><span class="kl">Preventiva</span></div>
+    </div>
+  </div>
+  <div class="slide-body layout-grid">
+    <div class="chart-cell hbar-cell">
+  <p class="clabel">O.S. em andamento por Comarca</p>
+  <div class="cwrap"><canvas id="r08_com"></canvas></div>
+  <script>window._charts.push(()=>{
+    var inst=new Chart(document.getElementById("r08_com"),{
+      type:"bar",
+      data:{labels:["COMARCA DE RIO DAS OSTRAS", "COMARCA DE CARAPEBUS / QUISSAMÃ", "COMARCA DE MACAÉ", "COMARCA DE CONCEIÇÃO DE MACABU"],datasets:[{
+        data:[4, 3, 2, 2],backgroundColor:"#2a9d7a",
+        borderRadius:5,barPercentage:0.62,categoryPercentage:0.85
+      }]},
+      options:{maintainAspectRatio:false,indexAxis:"y",
+        layout:{padding:{right:42}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"right",color:"#e2efe5",font:{size:11,weight:"700"}}
+        },
+        scales:{
+          x:{display:false,grid:{display:false}},
+          y:{ticks:{color:"#8aaa90",font:{size:9}},grid:{display:false},afterFit:s=>s.width=200}
+        }
+      },plugins:[ChartDataLabels]
+    });
+    window._chartInstances.push(inst);
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Indicador de Execução — JUNHO</p>
+  <div class="cwrap"><canvas id="r08_exec"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Em andamento</span><b>0%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Concluída</span><b>100%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r08_exec"),{
+      type:"doughnut",
+      data:{labels:["Em andamento", "Concluída"],datasets:[{
+        data:[0, 41],backgroundColor:["#2a9d7a", "#c9a84c"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/41*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Natureza dos Serviços — JUNHO</p>
+  <div class="cwrap"><canvas id="r08_nat"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Corretiva</span><b>7%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Preventiva</span><b>84%</b></span><span class="leg"><i style="background:#4a6e54"></i><span>Serviço de apoio e melhoria</span><b>9%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r08_nat"),{
+      type:"doughnut",
+      data:{labels:["Corretiva", "Preventiva", "Serviço de apoio e melhoria"],datasets:[{
+        data:[3, 38, 4],backgroundColor:["#2a9d7a", "#c9a84c", "#4a6e54"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/45*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell vbar-cell">
+  <p class="clabel">Por Setor — JUNHO</p>
+  <div class="cwrap"><canvas id="r08_set"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r08_set"),{
+      type:"bar",
+      data:{labels:["P.A. Região 08", "COTEM - Infraestrutura de Rede", "NAOP Orçamento/Compra", "COTEM - Elétrica", "COMAP Elaboração de Cronograma", "COMAP Análise CIVIL Regionais", "COMAP Agendamento"],datasets:[{
+        data:[4, 2, 1, 1, 1, 1, 1],
+        backgroundColor:function(ctx){
+          var v=ctx.dataset.data,mx=Math.max(...v);
+          return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
+        },
+        borderRadius:4
+      }]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"top",color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false}
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+    <div class="chart-cell pareto-cell">
+  <p class="clabel">Por Tipificação — JUNHO</p>
+  <div class="cwrap"><canvas id="r08_tip"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r08_tip"),{
+      type:"bar",
+      data:{labels:["Instalações elétricas", "Vidros", "Serralheria", "Redes", "Marcenaria", "Instalações elétricas, Refrigeração, Instalações Hidrossanitárias", "Instalações Hidrossanitárias", "Coberturas"],datasets:[
+        {type:"bar",data:[3, 1, 1, 1, 1, 1, 1, 1],backgroundColor:"#2a9d7a",borderRadius:4,yAxisID:"y"},
+        {type:"line",data:[30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0],borderColor:"#c9a84c",borderWidth:2,
+          pointBackgroundColor:"#c9a84c",pointRadius:3,fill:false,tension:0.1,yAxisID:"y2"}
+      ]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{display:c=>c.datasetIndex===0,anchor:"end",align:"top",
+            color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false},
+          y2:{position:"right",min:0,max:100,
+            ticks:{color:"#c9a84c",font:{size:9},callback:v=>v+"%"},
+            grid:{color:"rgba(201,168,76,.06)"}
+          }
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+  </div>
+</section><section class="slide data-slide" id="rg09" data-wm="R09">
+  <div class="slide-header">
+    <div class="slide-num">R09</div>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Análise de O.S. · JUNHO 2026</span>
+      <span class="slide-title">REGIÃO 09</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-green"><span class="kv">64</span><span class="kl">O.S. no mês</span></div>
+      <div class="kpi kpi-gold"><span class="kv">92%</span><span class="kl">Execução</span></div>
+      <div class="kpi kpi-muted"><span class="kv">5</span><span class="kl">Em andamento</span></div>
+      <div class="kpi kpi-muted"><span class="kv">0%</span><span class="kl">Preventiva</span></div>
+    </div>
+  </div>
+  <div class="slide-body layout-grid">
+    <div class="chart-cell hbar-cell">
+  <p class="clabel">O.S. em andamento por Comarca</p>
+  <div class="cwrap"><canvas id="r09_com"></canvas></div>
+  <script>window._charts.push(()=>{
+    var inst=new Chart(document.getElementById("r09_com"),{
+      type:"bar",
+      data:{labels:["COMARCA DE ITAGUAÍ", "COMARCA DE ANGRA DOS REIS", "COMARCA DE PARATY", "COMARCA DE MANGARATIBA", "COMARCA DE SEROPÉDICA"],datasets:[{
+        data:[18, 18, 8, 5, 1],backgroundColor:"#2a9d7a",
+        borderRadius:5,barPercentage:0.62,categoryPercentage:0.85
+      }]},
+      options:{maintainAspectRatio:false,indexAxis:"y",
+        layout:{padding:{right:42}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"right",color:"#e2efe5",font:{size:11,weight:"700"}}
+        },
+        scales:{
+          x:{display:false,grid:{display:false}},
+          y:{ticks:{color:"#8aaa90",font:{size:9}},grid:{display:false},afterFit:s=>s.width=200}
+        }
+      },plugins:[ChartDataLabels]
+    });
+    window._chartInstances.push(inst);
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Indicador de Execução — JUNHO</p>
+  <div class="cwrap"><canvas id="r09_exec"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Em andamento</span><b>8%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Concluída</span><b>92%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r09_exec"),{
+      type:"doughnut",
+      data:{labels:["Em andamento", "Concluída"],datasets:[{
+        data:[5, 59],backgroundColor:["#2a9d7a", "#c9a84c"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/64*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Natureza dos Serviços — JUNHO</p>
+  <div class="cwrap"><canvas id="r09_nat"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Corretiva</span><b>17%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Preventiva</span><b>0%</b></span><span class="leg"><i style="background:#4a6e54"></i><span>Serviço de apoio e melhoria</span><b>83%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r09_nat"),{
+      type:"doughnut",
+      data:{labels:["Corretiva", "Preventiva", "Serviço de apoio e melhoria"],datasets:[{
+        data:[2, 0, 10],backgroundColor:["#2a9d7a", "#c9a84c", "#4a6e54"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/12*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell vbar-cell">
+  <p class="clabel">Por Setor — JUNHO</p>
+  <div class="cwrap"><canvas id="r09_set"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r09_set"),{
+      type:"bar",
+      data:{labels:["P.A. Região 09", "COTEM - Elétrica", "COMAP Requisição de Material à CETEST", "COMAP Análise CIVIL Regionais", "COTEM - Infraestrutura de Rede", "COMAP Agendamento", "COFEC", "COMAP Elaboração de Relatórios", "COMAP Elaboração de Cronograma", "Segurança do Trabalho", "Processo Licitatório", "COTEM - Projetos"],datasets:[{
+        data:[15, 8, 6, 5, 3, 3, 3, 2, 2, 1, 1, 1],
+        backgroundColor:function(ctx){
+          var v=ctx.dataset.data,mx=Math.max(...v);
+          return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
+        },
+        borderRadius:4
+      }]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"top",color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false}
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+    <div class="chart-cell pareto-cell">
+  <p class="clabel">Por Tipificação — JUNHO</p>
+  <div class="cwrap"><canvas id="r09_tip"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r09_tip"),{
+      type:"bar",
+      data:{labels:["Instalações elétricas", "Outros", "Marcenaria", "Instalações Hidrossanitárias", "Refrigeração", "Redes", "Pinturas", "Mudança de layout", "Coberturas", "Refrigeração, Outros", "Obra", "Impermeabilizações", "Estruturas, Impermeabilizações"],datasets:[
+        {type:"bar",data:[13, 12, 5, 4, 3, 2, 2, 2, 2, 1, 1, 1, 1],backgroundColor:"#2a9d7a",borderRadius:4,yAxisID:"y"},
+        {type:"line",data:[26.5, 51.0, 61.2, 69.4, 75.5, 79.6, 83.7, 87.8, 91.8, 93.9, 95.9, 98.0, 100.0],borderColor:"#c9a84c",borderWidth:2,
+          pointBackgroundColor:"#c9a84c",pointRadius:3,fill:false,tension:0.1,yAxisID:"y2"}
+      ]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{display:c=>c.datasetIndex===0,anchor:"end",align:"top",
+            color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false},
+          y2:{position:"right",min:0,max:100,
+            ticks:{color:"#c9a84c",font:{size:9},callback:v=>v+"%"},
+            grid:{color:"rgba(201,168,76,.06)"}
+          }
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+  </div>
+</section><section class="slide data-slide" id="rg10" data-wm="R10">
+  <div class="slide-header">
+    <div class="slide-num">R10</div>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Análise de O.S. · JUNHO 2026</span>
+      <span class="slide-title">REGIÃO 10</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-green"><span class="kv">23</span><span class="kl">O.S. no mês</span></div>
+      <div class="kpi kpi-gold"><span class="kv">78%</span><span class="kl">Execução</span></div>
+      <div class="kpi kpi-muted"><span class="kv">5</span><span class="kl">Em andamento</span></div>
+      <div class="kpi kpi-muted"><span class="kv">72%</span><span class="kl">Preventiva</span></div>
+    </div>
+  </div>
+  <div class="slide-body layout-grid">
+    <div class="chart-cell hbar-cell">
+  <p class="clabel">O.S. em andamento por Comarca</p>
+  <div class="cwrap"><canvas id="r10_com"></canvas></div>
+  <script>window._charts.push(()=>{
+    var inst=new Chart(document.getElementById("r10_com"),{
+      type:"bar",
+      data:{labels:["COMARCA DE VALENÇA", "COMARCA DE VASSOURAS", "COMARCA DE BARRA DO PIRAÍ", "COMARCA DE MENDES", "COMARCA DE RIO DAS FLORES", "COMARCA DE ENGENHEIRO PAULO DE FRONTIN"],datasets:[{
+        data:[6, 4, 3, 2, 1, 1],backgroundColor:"#2a9d7a",
+        borderRadius:5,barPercentage:0.62,categoryPercentage:0.85
+      }]},
+      options:{maintainAspectRatio:false,indexAxis:"y",
+        layout:{padding:{right:42}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"right",color:"#e2efe5",font:{size:11,weight:"700"}}
+        },
+        scales:{
+          x:{display:false,grid:{display:false}},
+          y:{ticks:{color:"#8aaa90",font:{size:9}},grid:{display:false},afterFit:s=>s.width=200}
+        }
+      },plugins:[ChartDataLabels]
+    });
+    window._chartInstances.push(inst);
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Indicador de Execução — JUNHO</p>
+  <div class="cwrap"><canvas id="r10_exec"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Em andamento</span><b>22%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Concluída</span><b>78%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r10_exec"),{
+      type:"doughnut",
+      data:{labels:["Em andamento", "Concluída"],datasets:[{
+        data:[5, 18],backgroundColor:["#2a9d7a", "#c9a84c"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/23*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Natureza dos Serviços — JUNHO</p>
+  <div class="cwrap"><canvas id="r10_nat"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Corretiva</span><b>16%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Preventiva</span><b>72%</b></span><span class="leg"><i style="background:#4a6e54"></i><span>Serviço de apoio e melhoria</span><b>12%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r10_nat"),{
+      type:"doughnut",
+      data:{labels:["Corretiva", "Preventiva", "Serviço de apoio e melhoria"],datasets:[{
+        data:[7, 31, 5],backgroundColor:["#2a9d7a", "#c9a84c", "#4a6e54"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/43*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell vbar-cell">
+  <p class="clabel">Por Setor — JUNHO</p>
+  <div class="cwrap"><canvas id="r10_set"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r10_set"),{
+      type:"bar",
+      data:{labels:["P.A. Região 10", "COTEM - Mecânica", "COPRO", "Processo Licitatório", "COTEM - Infraestrutura de Rede", "COMAP Triagem Materiais", "COMAP Requisição de Material à CETEST"],datasets:[{
+        data:[7, 3, 3, 1, 1, 1, 1],
+        backgroundColor:function(ctx){
+          var v=ctx.dataset.data,mx=Math.max(...v);
+          return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
+        },
+        borderRadius:4
+      }]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"top",color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false}
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+    <div class="chart-cell pareto-cell">
+  <p class="clabel">Por Tipificação — JUNHO</p>
+  <div class="cwrap"><canvas id="r10_tip"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r10_tip"),{
+      type:"bar",
+      data:{labels:["Instalações elétricas", "Refrigeração", "Mudança de layout", "Coberturas"],datasets:[
+        {type:"bar",data:[9, 4, 3, 1],backgroundColor:"#2a9d7a",borderRadius:4,yAxisID:"y"},
+        {type:"line",data:[52.9, 76.5, 94.1, 100.0],borderColor:"#c9a84c",borderWidth:2,
+          pointBackgroundColor:"#c9a84c",pointRadius:3,fill:false,tension:0.1,yAxisID:"y2"}
+      ]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{display:c=>c.datasetIndex===0,anchor:"end",align:"top",
+            color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false},
+          y2:{position:"right",min:0,max:100,
+            ticks:{color:"#c9a84c",font:{size:9},callback:v=>v+"%"},
+            grid:{color:"rgba(201,168,76,.06)"}
+          }
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+  </div>
+</section><section class="slide data-slide" id="rg11" data-wm="R11">
+  <div class="slide-header">
+    <div class="slide-num">R11</div>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Análise de O.S. · JUNHO 2026</span>
+      <span class="slide-title">REGIÃO 11</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-green"><span class="kv">64</span><span class="kl">O.S. no mês</span></div>
+      <div class="kpi kpi-gold"><span class="kv">91%</span><span class="kl">Execução</span></div>
+      <div class="kpi kpi-muted"><span class="kv">6</span><span class="kl">Em andamento</span></div>
+      <div class="kpi kpi-muted"><span class="kv">73%</span><span class="kl">Preventiva</span></div>
+    </div>
+  </div>
+  <div class="slide-body layout-grid">
+    <div class="chart-cell hbar-cell">
+  <p class="clabel">O.S. em andamento por Comarca</p>
+  <div class="cwrap"><canvas id="r11_com"></canvas></div>
+  <script>window._charts.push(()=>{
+    var inst=new Chart(document.getElementById("r11_com"),{
+      type:"bar",
+      data:{labels:["COMARCA DE TERESÓPOLIS", "COMARCA DE SUMIDOURO", "COMARCA DE CARMO", "COMARCA DE SÃO JOSÉ DO VALE DO RIO PRETO"],datasets:[{
+        data:[16, 9, 7, 1],backgroundColor:"#2a9d7a",
+        borderRadius:5,barPercentage:0.62,categoryPercentage:0.85
+      }]},
+      options:{maintainAspectRatio:false,indexAxis:"y",
+        layout:{padding:{right:42}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"right",color:"#e2efe5",font:{size:11,weight:"700"}}
+        },
+        scales:{
+          x:{display:false,grid:{display:false}},
+          y:{ticks:{color:"#8aaa90",font:{size:9}},grid:{display:false},afterFit:s=>s.width=200}
+        }
+      },plugins:[ChartDataLabels]
+    });
+    window._chartInstances.push(inst);
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Indicador de Execução — JUNHO</p>
+  <div class="cwrap"><canvas id="r11_exec"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Em andamento</span><b>9%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Concluída</span><b>91%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r11_exec"),{
+      type:"doughnut",
+      data:{labels:["Em andamento", "Concluída"],datasets:[{
+        data:[6, 58],backgroundColor:["#2a9d7a", "#c9a84c"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/64*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Natureza dos Serviços — JUNHO</p>
+  <div class="cwrap"><canvas id="r11_nat"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Corretiva</span><b>21%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Preventiva</span><b>73%</b></span><span class="leg"><i style="background:#4a6e54"></i><span>Serviço de apoio e melhoria</span><b>6%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r11_nat"),{
+      type:"doughnut",
+      data:{labels:["Corretiva", "Preventiva", "Serviço de apoio e melhoria"],datasets:[{
+        data:[14, 48, 4],backgroundColor:["#2a9d7a", "#c9a84c", "#4a6e54"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/66*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell vbar-cell">
+  <p class="clabel">Por Setor — JUNHO</p>
+  <div class="cwrap"><canvas id="r11_set"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r11_set"),{
+      type:"bar",
+      data:{labels:["P.A. Região 11", "COTEM - Mecânica", "Processo Licitatório", "COPRO", "COFEC", "COMAP Requisição de Material à CETEST"],datasets:[{
+        data:[23, 3, 2, 2, 2, 1],
+        backgroundColor:function(ctx){
+          var v=ctx.dataset.data,mx=Math.max(...v);
+          return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
+        },
+        borderRadius:4
+      }]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"top",color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false}
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+    <div class="chart-cell pareto-cell">
+  <p class="clabel">Por Tipificação — JUNHO</p>
+  <div class="cwrap"><canvas id="r11_tip"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r11_tip"),{
+      type:"bar",
+      data:{labels:["Refrigeração", "Instalações elétricas", "Instalações Hidrossanitárias", "Outros", "Coberturas", "Vidros", "Mudança de layout"],datasets:[
+        {type:"bar",data:[14, 10, 3, 2, 2, 1, 1],backgroundColor:"#2a9d7a",borderRadius:4,yAxisID:"y"},
+        {type:"line",data:[42.4, 72.7, 81.8, 87.9, 93.9, 97.0, 100.0],borderColor:"#c9a84c",borderWidth:2,
+          pointBackgroundColor:"#c9a84c",pointRadius:3,fill:false,tension:0.1,yAxisID:"y2"}
+      ]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{display:c=>c.datasetIndex===0,anchor:"end",align:"top",
+            color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false},
+          y2:{position:"right",min:0,max:100,
+            ticks:{color:"#c9a84c",font:{size:9},callback:v=>v+"%"},
+            grid:{color:"rgba(201,168,76,.06)"}
+          }
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+  </div>
+</section><section class="slide data-slide" id="rg12" data-wm="R12">
+  <div class="slide-header">
+    <div class="slide-num">R12</div>
+    <div class="slide-title-area">
+      <span class="slide-eyebrow">Análise de O.S. · JUNHO 2026</span>
+      <span class="slide-title">REGIÃO 12</span>
+    </div>
+    <div class="slide-kpis">
+      <div class="kpi kpi-green"><span class="kv">82</span><span class="kl">O.S. no mês</span></div>
+      <div class="kpi kpi-gold"><span class="kv">95%</span><span class="kl">Execução</span></div>
+      <div class="kpi kpi-muted"><span class="kv">4</span><span class="kl">Em andamento</span></div>
+      <div class="kpi kpi-muted"><span class="kv">56%</span><span class="kl">Preventiva</span></div>
+    </div>
+  </div>
+  <div class="slide-body layout-grid">
+    <div class="chart-cell hbar-cell">
+  <p class="clabel">O.S. em andamento por Comarca</p>
+  <div class="cwrap"><canvas id="r12_com"></canvas></div>
+  <script>window._charts.push(()=>{
+    var inst=new Chart(document.getElementById("r12_com"),{
+      type:"bar",
+      data:{labels:["COMARCA DE CAMPOS DOS GOYTACAZES", "COMARCA DE SÃO FIDÉLIS", "COMARCA DE SÃO JOÃO DA BARRA", "COMARCA DE SÃO FRANCISCO DE ITABAPOANA", "COMARCA DE ITALVA / CARDOSO MOREIRA"],datasets:[{
+        data:[20, 3, 2, 2, 2],backgroundColor:"#2a9d7a",
+        borderRadius:5,barPercentage:0.62,categoryPercentage:0.85
+      }]},
+      options:{maintainAspectRatio:false,indexAxis:"y",
+        layout:{padding:{right:42}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"right",color:"#e2efe5",font:{size:11,weight:"700"}}
+        },
+        scales:{
+          x:{display:false,grid:{display:false}},
+          y:{ticks:{color:"#8aaa90",font:{size:9}},grid:{display:false},afterFit:s=>s.width=200}
+        }
+      },plugins:[ChartDataLabels]
+    });
+    window._chartInstances.push(inst);
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Indicador de Execução — JUNHO</p>
+  <div class="cwrap"><canvas id="r12_exec"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Em andamento</span><b>5%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Concluída</span><b>95%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r12_exec"),{
+      type:"doughnut",
+      data:{labels:["Em andamento", "Concluída"],datasets:[{
+        data:[4, 78],backgroundColor:["#2a9d7a", "#c9a84c"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/82*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell donut-cell">
+  <p class="clabel">Natureza dos Serviços — JUNHO</p>
+  <div class="cwrap"><canvas id="r12_nat"></canvas></div>
+  <div class="legrow"><span class="leg"><i style="background:#2a9d7a"></i><span>Corretiva</span><b>19%</b></span><span class="leg"><i style="background:#c9a84c"></i><span>Preventiva</span><b>56%</b></span><span class="leg"><i style="background:#4a6e54"></i><span>Serviço de apoio e melhoria</span><b>25%</b></span></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r12_nat"),{
+      type:"doughnut",
+      data:{labels:["Corretiva", "Preventiva", "Serviço de apoio e melhoria"],datasets:[{
+        data:[7, 20, 9],backgroundColor:["#2a9d7a", "#c9a84c", "#4a6e54"],
+        borderWidth:0,hoverOffset:4
+      }]},
+      options:{maintainAspectRatio:false,cutout:"66%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>c.label+": "+c.parsed+" ("+Math.round(c.parsed/36*100)+"%)"}},
+          datalabels:{display:false}
+        }
+      },
+      plugins:[
+{id:"centerText",beforeDraw(chart){
+  const {ctx,chartArea:{top,bottom,left,right}}=chart;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const d=chart.data.datasets[0].data;
+  const t=d.reduce((a,b)=>a+b,0)||1;
+  const maxIdx=d.indexOf(Math.max(...d));
+  const pct=Math.round(d[maxIdx]/t*100);
+  const lbl=chart.data.labels[maxIdx]||"";
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="bold 22px Inter";ctx.fillStyle="#e2efe5";
+  ctx.fillText(pct+"%",cx,cy-8);
+  ctx.font="600 9px Inter";ctx.fillStyle="#7aaa8a";
+  ctx.fillText(lbl,cx,cy+9);
+  ctx.restore();
+}}]
+    });
+  });</script>
+</div>
+    <div class="chart-cell vbar-cell">
+  <p class="clabel">Por Setor — JUNHO</p>
+  <div class="cwrap"><canvas id="r12_set"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r12_set"),{
+      type:"bar",
+      data:{labels:["P.A. Região 12", "COMAP Requisição de Material à CETEST", "COPRO", "COTEM - Projetos", "COMAP Serviços Eventuais", "COMAP Elaboração de Relatórios", "Processo Licitatório", "NAOP Orçamento/Compra", "COTEM - Mecânica", "COTEM - Infraestrutura de Rede"],datasets:[{
+        data:[7, 7, 5, 2, 2, 2, 1, 1, 1, 1],
+        backgroundColor:function(ctx){
+          var v=ctx.dataset.data,mx=Math.max(...v);
+          return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
+        },
+        borderRadius:4
+      }]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"top",color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false}
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+    <div class="chart-cell pareto-cell">
+  <p class="clabel">Por Tipificação — JUNHO</p>
+  <div class="cwrap"><canvas id="r12_tip"></canvas></div>
+  <script>window._charts.push(()=>{
+    new Chart(document.getElementById("r12_tip"),{
+      type:"bar",
+      data:{labels:["Mudança de layout", "Outros", "Instalações elétricas", "Vidros", "Instalações Hidrossanitárias", "Coberturas", "Serralheria", "Refrigeração", "Redes", "Pinturas", "Marcenaria", "Instalações elétricas, Instalações Hidrossanitárias", "Estruturas"],datasets:[
+        {type:"bar",data:[7, 6, 3, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1],backgroundColor:"#2a9d7a",borderRadius:4,yAxisID:"y"},
+        {type:"line",data:[24.1, 44.8, 55.2, 62.1, 69.0, 75.9, 79.3, 82.8, 86.2, 89.7, 93.1, 96.6, 100.0],borderColor:"#c9a84c",borderWidth:2,
+          pointBackgroundColor:"#c9a84c",pointRadius:3,fill:false,tension:0.1,yAxisID:"y2"}
+      ]},
+      options:{maintainAspectRatio:false,layout:{padding:{top:20}},
+        plugins:{legend:{display:false},
+          datalabels:{display:c=>c.datasetIndex===0,anchor:"end",align:"top",
+            color:"#e2efe5",font:{size:9,weight:"bold"}}
+        },
+        scales:{
+          x:{ticks:{color:"#8aaa90",font:{size:8},maxRotation:40},grid:{display:false}},
+          y:{display:false},
+          y2:{position:"right",min:0,max:100,
+            ticks:{color:"#c9a84c",font:{size:9},callback:v=>v+"%"},
+            grid:{color:"rgba(201,168,76,.06)"}
+          }
+        }
+      },plugins:[ChartDataLabels]
+    });
+  });</script>
+</div>
+  </div>
+</section>
+<script>
+Chart.register(ChartDataLabels);
+document.addEventListener('DOMContentLoaded', function() {
+  window._charts.forEach(fn => { try { fn(); } catch(e) { console.warn(e); } });
+});
+</script>
+<script>
+(function() {
+  var slides = document.querySelectorAll('.slide[id]');
+  var links  = document.querySelectorAll('#topnav a[href^="#"]');
+  var map = {};
+  links.forEach(a => map[a.getAttribute('href').slice(1)] = a);
+  var obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting && map[e.target.id]) {
+        links.forEach(a => a.classList.remove('active'));
+        map[e.target.id].classList.add('active');
+      }
+    });
+  }, { threshold: 0.5 });
+  slides.forEach(s => obs.observe(s));
+})();
+</script>
+</body>
+</html>
