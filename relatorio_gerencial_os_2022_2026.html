@@ -123,6 +123,14 @@ tfoot td{font-weight:700;border-top:2px solid var(--ink)}
   .slicers__ctx{margin-left:0}
   .visual.is-focus{inset:8px}
 }
+@page{size:420mm 297mm;margin:8mm}
+.pdf .vbtn{display:none!important}
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .vbtn{display:none!important}
+  .visual,.kpis,.kpi,.slicers,table tr{break-inside:avoid}
+  .page{padding-block:12px 0}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -244,6 +252,9 @@ const yLbl = y => isPartial(y) ? `${y}*` : y;
 /* ---------- estado ---------- */
 let sel = 'all';
 try { const s = localStorage.getItem('os-ger-sel'); if (s && (s === 'all' || RAW[s])) sel = s; } catch (e) {}
+const PDF = location.hash.startsWith('#pdf-');
+{ const h = location.hash.slice(1).replace(/^pdf-/, ''); if (h === 'consolidado') sel = 'all'; else if (RAW[h]) sel = h; }
+if (PDF) document.documentElement.classList.add('pdf');
 
 /* ---------- segmentação ---------- */
 function buildSeg(el, pre, short) {
@@ -310,7 +321,7 @@ Chart.defaults.font.size = 12;
 Chart.defaults.color = C.ink2;
 Chart.defaults.plugins.legend.display = false;
 Chart.defaults.plugins.datalabels.display = false;
-Chart.defaults.animation.duration = 450;
+Chart.defaults.animation = PDF ? false : {duration:450};
 Object.assign(Chart.defaults.plugins.tooltip, {
   backgroundColor:'#ffffff', titleColor:C.ink, bodyColor:C.ink2, borderColor:'#d5ddd8', borderWidth:1,
   padding:10, cornerRadius:4, boxPadding:4, usePointStyle:true, titleFont:{weight:'600'}
