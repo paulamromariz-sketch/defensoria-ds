@@ -99,6 +99,12 @@ tfoot td{font-weight:700;border-top:2px solid var(--ink)}
 .hm th{text-align:center}.hm th:first-child{text-align:left}
 .col-sel{box-shadow:inset 0 0 0 2px var(--gold)}
 .row-sel td{background:#fbf6e8!important}
+.seg--sm button{font-size:12px;padding:4px 10px}
+.vhead--wrap{flex-wrap:wrap}
+.nat-tbl{margin-top:14px}
+.nat-tbl td i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px;vertical-align:0}
+.nat-tbl tbody tr.tot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:0}
+.nat-tbl td.pc{color:var(--muted)}
 .bar-in{display:inline-block;height:6px;border-radius:3px;background:var(--s-prev);vertical-align:middle;margin-left:8px}
 
 .notes{margin-top:14px;font-size:12px;color:var(--muted);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:6px 24px}
@@ -158,6 +164,13 @@ tfoot td{font-weight:700;border-top:2px solid var(--ink)}
       <div class="vhead"><div class="vhead__t"><h2 class="vtitle">Evolução mensal</h2><div class="vsub" id="subMensal">O.S. abertas e concluídas por mês</div></div><button class="vbtn" aria-label="Modo foco" data-focus>⤢</button></div>
       <div class="legend"><span><i style="background:var(--s-abert)"></i>Abertas</span><span><i style="background:var(--s-concl)"></i>Concluídas</span></div>
       <div class="chart chart--lg"><canvas id="cMensal" aria-label="Gráfico de linhas mensal de O.S. abertas e concluídas"></canvas></div>
+    </article>
+
+    <article class="visual c12">
+      <div class="vhead vhead--wrap"><div class="vhead__t"><h2 class="vtitle">Natureza das O.S. concluídas por mês</h2><div class="vsub" id="subNat">Preventiva, corretiva e apoio e melhoria</div></div><div class="seg seg--sm" id="segNat" role="group" aria-label="Selecionar ano do detalhamento"></div><button class="vbtn" aria-label="Modo foco" data-focus>⤢</button></div>
+      <div class="legend"><span><i style="background:var(--s-prev)"></i>Preventiva</span><span><i style="background:var(--s-corr)"></i>Corretiva</span><span><i style="background:var(--s-apoio)"></i>Apoio e melhoria</span></div>
+      <div class="chart"><canvas id="cNat" aria-label="Colunas empilhadas por mês com a quantidade de O.S. concluídas por natureza"></canvas></div>
+      <div class="tbl-wrap nat-tbl"><table id="tNat"></table></div>
     </article>
 
     <article class="visual c7">
@@ -232,13 +245,16 @@ let sel = 'all';
 try { const s = localStorage.getItem('os-ger-sel'); if (s && (s === 'all' || RAW[s])) sel = s; } catch (e) {}
 
 /* ---------- segmentação ---------- */
-const seg = document.getElementById('seg');
-[['all','Consolidado'], ...YEARS.map(y => [y, isPartial(y) ? `${y} (jan–set)` : y])].forEach(([v, t]) => {
+function buildSeg(el, pre, short) {
+[['all','Consolidado'], ...YEARS.map(y => [y, isPartial(y) && !short ? `${y} (jan–set)` : y])].forEach(([v, t]) => {
   const b = document.createElement('button');
-  b.type = 'button'; b.textContent = t; b.dataset.v = v; b.id = 'seg-' + v;
+  b.type = 'button'; b.textContent = t; b.dataset.v = v; b.id = pre + v;
   b.addEventListener('click', () => { sel = v; try { localStorage.setItem('os-ger-sel', v); } catch (e) {} render(); });
-  seg.appendChild(b);
+  el.appendChild(b);
 });
+}
+buildSeg(document.getElementById('seg'), 'seg-', false);
+buildSeg(document.getElementById('segNat'), 'segn-', true);
 
 /* ---------- sparkline SVG ---------- */
 function spark(vals, color, ref) {
@@ -364,6 +380,37 @@ const cMix = new Chart(document.getElementById('cMix'), {
 });
 const MIXC = [C.prev, C.corr, C.apoio];
 
+/* Natureza por mês (colunas empilhadas) */
+const natDs = (label, key, color) => ({label, key, data:[], backgroundColor:color, borderColor:'#fff', borderWidth:{top:2}, borderSkipped:false, maxBarThickness:40});
+const cNat = new Chart(document.getElementById('cNat'), {
+  type:'bar',
+  data:{labels:[], datasets:[natDs('Preventiva','pr',C.prev), natDs('Corretiva','co',C.corr), natDs('Apoio e melhoria','sa',C.apoio)]},
+  options:{maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
+    scales:{x:axX({stacked:true, ticks:{color:C.ink2, autoSkip:true, maxRotation:0, autoSkipPadding:10}}), y:axY({stacked:true})},
+    plugins:{
+      datalabels:{display:c => sel !== 'all' && c.dataset.data[c.dataIndex] >= 60, color:'#fff', font:{size:10.5, weight:'600'}, formatter:v => nf.format(v)},
+      tooltip:{callbacks:{
+        label:c => { const t = c.chart.data.datasets.reduce((a, d) => a + d.data[c.dataIndex], 0); return ` ${c.dataset.label}: ${nf.format(c.raw)} (${pct(c.raw / t, 0)})`; },
+        footer:it => `Total: ${nf.format(it.reduce((a, i) => a + i.raw, 0))}`
+      }}
+    }
+  }
+});
+
+function renderNatTable(rows) {
+  const NAT = [['Preventiva','pr',C.prev],['Corretiva','co',C.corr],['Apoio e melhoria','sa',C.apoio]];
+  let cols, val;
+  if (sel === 'all') { cols = YEARS.map(y => ({lbl:yLbl(y), rows:rowsOf(y)})); }
+  else { cols = rows.map(r => ({lbl:MES[r.m], rows:[r]})); }
+  val = (c, k) => sum(c.rows, k);
+  const totAll = k => sum(rows, k);
+  const grand = totAll('pr') + totAll('co') + totAll('sa');
+  const head = `<thead><tr><th>Natureza</th>${cols.map(c => `<th>${c.lbl}</th>`).join('')}<th>Total</th><th>%</th></tr></thead>`;
+  const body = NAT.map(([n, k, c]) => `<tr><td><i style="background:${c}"></i>${n}</td>${cols.map(col => `<td>${fmt(val(col, k))}</td>`).join('')}<td><b>${fmt(totAll(k))}</b></td><td class="pc">${pct(totAll(k) / grand)}</td></tr>`).join('');
+  const tot = `<tr class="tot"><td>Total concluídas</td>${cols.map(col => `<td>${fmt(val(col,'pr') + val(col,'co') + val(col,'sa'))}</td>`).join('')}<td>${fmt(grand)}</td><td class="pc">100%</td></tr>`;
+  document.getElementById('tNat').innerHTML = head + `<tbody>${body}${tot}</tbody>`;
+}
+
 /* Rosca */
 const centerTxt = {id:'center', afterDraw(ch){ const {ctx:g, chartArea:{left,right,top,bottom}} = ch; const cx = (left+right)/2, cy = (top+bottom)/2;
   const tot = ch.data.datasets[0].data.reduce((a,b) => a + b, 0);
@@ -438,7 +485,7 @@ function renderHeat() {
 
 /* ---------- render ---------- */
 function render() {
-  document.querySelectorAll('#seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === sel)));
+  document.querySelectorAll('#seg button, #segNat button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === sel)));
   const rows = rowsOf(sel);
   document.getElementById('ctx').textContent = sel === 'all'
     ? 'Exibindo jan/2022 a set/2026 · clique em uma coluna para filtrar o ano'
@@ -467,6 +514,14 @@ function render() {
   document.getElementById('lgDonut').innerHTML = [['Preventiva',a.pr,C.prev],['Corretiva',a.co,C.corr],['Apoio e melhoria',a.sa,C.apoio]]
     .map(([n, v, c]) => `<span><i style="background:${c}"></i>${n} <b class="num">${pct(v / a.nat, 0)}</b></span>`).join('');
 
+
+  cNat.data.labels = lbl;
+  cNat.data.datasets.forEach(d => d.data = rows.map(r => r[d.key]));
+  cNat.update();
+  document.getElementById('subNat').textContent = sel === 'all'
+    ? 'Quantidade mensal por natureza · jan/2022 a set/2026 · selecione um ano para o detalhamento mês a mês'
+    : `Quantidade mensal por natureza · ${sel}${isPartial(sel) ? ' (jan–set)' : ''}`;
+  renderNatTable(rows);
 
   renderResumo();
   renderHeat();
