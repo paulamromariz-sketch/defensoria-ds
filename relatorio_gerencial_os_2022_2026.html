@@ -166,7 +166,7 @@ tfoot td{font-weight:700;border-top:2px solid var(--ink)}
       <div class="chart chart--lg"><canvas id="cMensal" aria-label="Gráfico de linhas mensal de O.S. abertas e concluídas"></canvas></div>
     </article>
 
-    <article class="visual c12">
+    <article class="visual c12" id="vNat">
       <div class="vhead vhead--wrap"><div class="vhead__t"><h2 class="vtitle">Natureza das O.S. concluídas por mês</h2><div class="vsub" id="subNat">Preventiva, corretiva e apoio e melhoria</div></div><div class="seg seg--sm" id="segNat" role="group" aria-label="Selecionar ano do detalhamento"></div><button class="vbtn" aria-label="Modo foco" data-focus>⤢</button></div>
       <div class="legend"><span><i style="background:var(--s-prev)"></i>Preventiva</span><span><i style="background:var(--s-corr)"></i>Corretiva</span><span><i style="background:var(--s-apoio)"></i>Apoio e melhoria</span></div>
       <div class="chart"><canvas id="cNat" aria-label="Colunas empilhadas por mês com a quantidade de O.S. concluídas por natureza"></canvas></div>
@@ -246,7 +246,7 @@ try { const s = localStorage.getItem('os-ger-sel'); if (s && (s === 'all' || RAW
 
 /* ---------- segmentação ---------- */
 function buildSeg(el, pre, short) {
-[['all','Consolidado'], ...YEARS.map(y => [y, isPartial(y) && !short ? `${y} (jan–set)` : y])].forEach(([v, t]) => {
+[...(short ? [] : [['all','Consolidado']]), ...YEARS.map(y => [y, isPartial(y) && !short ? `${y} (jan–set)` : y])].forEach(([v, t]) => {
   const b = document.createElement('button');
   b.type = 'button'; b.textContent = t; b.dataset.v = v; b.id = pre + v;
   b.addEventListener('click', () => { sel = v; try { localStorage.setItem('os-ger-sel', v); } catch (e) {} render(); });
@@ -515,12 +515,11 @@ function render() {
     .map(([n, v, c]) => `<span><i style="background:${c}"></i>${n} <b class="num">${pct(v / a.nat, 0)}</b></span>`).join('');
 
 
+  document.getElementById('vNat').hidden = sel === 'all';
   cNat.data.labels = lbl;
   cNat.data.datasets.forEach(d => d.data = rows.map(r => r[d.key]));
   cNat.update();
-  document.getElementById('subNat').textContent = sel === 'all'
-    ? 'Quantidade mensal por natureza · jan/2022 a set/2026 · selecione um ano para o detalhamento mês a mês'
-    : `Quantidade mensal por natureza · ${sel}${isPartial(sel) ? ' (jan–set)' : ''}`;
+  document.getElementById('subNat').textContent = sel === 'all' ? '' : `Quantidade mensal por natureza · ${sel}${isPartial(sel) ? ' (jan–set)' : ''}`;
   renderNatTable(rows);
 
   renderResumo();
