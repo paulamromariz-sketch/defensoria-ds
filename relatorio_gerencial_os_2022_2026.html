@@ -321,7 +321,7 @@ Chart.defaults.font.size = 12;
 Chart.defaults.color = C.ink2;
 Chart.defaults.plugins.legend.display = false;
 Chart.defaults.plugins.datalabels.display = false;
-Chart.defaults.animation = PDF ? false : {duration:450};
+if (PDF) Chart.defaults.animation = false; else Chart.defaults.animation.duration = 450;
 Object.assign(Chart.defaults.plugins.tooltip, {
   backgroundColor:'#ffffff', titleColor:C.ink, bodyColor:C.ink2, borderColor:'#d5ddd8', borderWidth:1,
   padding:10, cornerRadius:4, boxPadding:4, usePointStyle:true, titleFont:{weight:'600'}
