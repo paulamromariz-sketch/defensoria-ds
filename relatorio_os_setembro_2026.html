@@ -757,8 +757,8 @@ body { font-family: 'Inter', system-ui, sans-serif; color: var(--text); }
   <script>window._charts.push(()=>{
     var inst=new Chart(document.getElementById("r03_com"),{
       type:"bar",
-      data:{labels:["COMARCA IGUABA GRANDE"],datasets:[{
-        data:[1],backgroundColor:"#2a9d7a",
+      data:{labels:["COMARCA DE ARARUAMA", "COMARCA DE MARICÁ", "COMARCA DE SAQUAREMA", "COMARCA DE CABO FRIO", "COMARCA DE ARMAÇÃO DOS BÚZIOS", "COMARCA DE SILVA JARDIM", "COMARCA DE SÃO PEDRO DA ALDEIA", "COMARCA IGUABA GRANDE", "COMARCA DE RIO BONITO"],datasets:[{
+        data:[34, 27, 19, 17, 14, 7, 4, 1, 1],backgroundColor:"#2a9d7a",
         borderRadius:5,barPercentage:0.62,categoryPercentage:0.85
       }]},
       options:{maintainAspectRatio:false,indexAxis:"y",
@@ -857,8 +857,8 @@ body { font-family: 'Inter', system-ui, sans-serif; color: var(--text); }
   <script>window._charts.push(()=>{
     new Chart(document.getElementById("r03_set"),{
       type:"bar",
-      data:{labels:["P.A. Região 03", "Refrigeração", "Instalações elétricas", "COMAP Elaboração de Cronograma", "Instalações Hidrossanitárias", "COPRO", "Outros", "Mudança de layout", "Redes", "COTEM - Elétrica", "Serralheria", "COMAP Requisição de Material à CETEST", "Projetos", "Pinturas", "Marcenaria, Vidros", "Marcenaria", "Coberturas", "COTEM - Projetos"],datasets:[{
-        data:[102, 92, 8, 7, 6, 6, 4, 4, 3, 3, 2, 2, 1, 1, 1, 1, 1, 1],
+      data:{labels:["P.A. Região 03", "COMAP Elaboração de Cronograma", "COPRO", "COTEM - Elétrica", "COMAP Requisição de Material à CETEST", "COTEM - Projetos", "COTEM - Mecânica", "COMAP Serviços Eventuais", "COMAP Elaboração de Relatórios"],datasets:[{
+        data:[102, 7, 6, 3, 2, 1, 1, 1, 1],
         backgroundColor:function(ctx){
           var v=ctx.dataset.data,mx=Math.max(...v);
           return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
@@ -1367,8 +1367,8 @@ body { font-family: 'Inter', system-ui, sans-serif; color: var(--text); }
   <script>window._charts.push(()=>{
     new Chart(document.getElementById("r06_set"),{
       type:"bar",
-      data:{labels:["P.A. Região 06", "Refrigeração", "Instalações elétricas", "Instalações Hidrossanitárias", "Outros", "COTEM - Elétrica", "Mudança de layout", "Marcenaria", "Processo Licitatório", "COTEM - Mecânica", "Revestimento de piso", "Pinturas", "COMAP Elaboração de Relatórios", "COMAP Elaboração de Cronograma", "Serralheria", "Revestimento de teto", "Impermeabilizações", "COPRO"],datasets:[{
-        data:[68, 38, 13, 12, 7, 7, 6, 6, 4, 3, 2, 2, 2, 2, 1, 1, 1, 1],
+      data:{labels:["P.A. Região 06", "COTEM - Elétrica", "Processo Licitatório", "COTEM - Mecânica", "COMAP Elaboração de Relatórios", "COMAP Elaboração de Cronograma", "COPRO", "COMAP Análise CIVIL Regionais", "COMAP Agendamento"],datasets:[{
+        data:[68, 7, 4, 3, 2, 2, 1, 1, 1],
         backgroundColor:function(ctx){
           var v=ctx.dataset.data,mx=Math.max(...v);
           return ctx.dataset.data[ctx.dataIndex]===mx?"#c9a84c":"#2a9d7a";
